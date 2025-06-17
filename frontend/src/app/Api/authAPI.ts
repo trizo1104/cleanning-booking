@@ -1,0 +1,3 @@
+export const loginAPI = "/auth/signin";
+export const signUpAPI = "/auth/signup";
+export const logoutAPI = "/auth/signOut";
