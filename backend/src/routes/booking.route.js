@@ -49,4 +49,6 @@ bookingRoute.post(
   bookingController.reviewBooking
 );
 
+bookingRoute.get("/service/:serviceId", bookingController.getReviewsByService);
+
 module.exports = bookingRoute;

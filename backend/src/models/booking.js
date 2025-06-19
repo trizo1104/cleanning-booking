@@ -18,8 +18,6 @@ const bookingSchema = new mongoose.Schema({
   },
   selectedOptionType: { type: String },
   selectedPrice: { type: Number },
-  rating: { type: Number, min: 1, max: 5 },
-  review: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -1,4 +1,5 @@
 const Booking = require("../models/booking");
+const Review = require("../models/reivew");
 
 const createBooking = async (req, res) => {
   try {
@@ -109,30 +110,60 @@ const markBookingCompleted = async (req, res) => {
 };
 
 const reviewBooking = async (req, res) => {
-  const { rating, review } = req.body;
+  const { rating, comment } = req.body;
 
   try {
     const booking = await Booking.findById(req.params.id);
 
-    if (!booking) return res.status(404).json({ message: "Booking not exist" });
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
 
-    if (String(booking.user) !== String(req.user._id))
-      return res
-        .status(403)
-        .json({ message: "You do not have permission to rate this booking" });
+    // if (String(booking.user) !== String(req.user._id))
+    //   return res
+    //     .status(403)
+    //     .json({ message: "You do not have permission to rate this booking" });
 
     if (booking.status !== "done")
       return res
         .status(400)
-        .json({ message: "Can only be rated after completion" });
+        .json({ message: "Only completed bookings can be reviewed" });
 
-    booking.rating = rating;
-    booking.review = review;
-    await booking.save();
+    const existingReview = await Review.findOne({ booking: booking._id });
+    if (existingReview)
+      return res
+        .status(400)
+        .json({ message: "This booking has already been reviewed" });
 
-    res.json({ message: "Successful", booking });
+    const newReview = new Review({
+      user: req.user._id,
+      booking: booking._id,
+      service: booking.service,
+      rating,
+      comment,
+    });
+
+    await newReview.save();
+
+    res
+      .status(201)
+      .json({ message: "Review submitted successfully", review: newReview });
   } catch (error) {
-    res.status(500).json({ message: "fails rating" });
+    console.error(error);
+    res.status(500).json({ message: "Failed to submit review" });
+  }
+};
+
+const getReviewsByService = async (req, res) => {
+  const { serviceId } = req.params;
+
+  try {
+    const reviews = await Review.find({ service: serviceId })
+      .populate("user", "name")
+      .sort({ createdAt: -1 });
+
+    res.json(reviews);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to get reviews" });
   }
 };
 
@@ -144,4 +175,5 @@ module.exports = {
   getTodayBookingsForEmployee,
   markBookingCompleted,
   reviewBooking,
+  getReviewsByService,
 };

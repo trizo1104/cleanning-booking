@@ -6,6 +6,8 @@ import { Loader2, Star } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
 import { setUser } from "@/slices/authSlice";
+import { formatVND } from "@/lib/format";
+import Link from "next/link";
 
 type Booking = {
   _id: string;
@@ -17,14 +19,17 @@ type Booking = {
   time: string;
   address: string;
   note?: string;
-  status: "pending" | "assigned" | "done";
+  status: "pending" | "assigned" | "done" | "cancelled";
   rating?: number;
   review?: string;
+  selectedOptionType: string;
+  selectedPrice: string;
 };
 
 export default function MyBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchBookings = async () => {
       try {
@@ -70,7 +75,7 @@ export default function MyBookingsPage() {
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {bookings.map((booking, index) => (
+            {bookings?.map((booking, index) => (
               <motion.div
                 key={booking._id}
                 initial={{ opacity: 0, y: 20 }}
@@ -79,18 +84,29 @@ export default function MyBookingsPage() {
                 className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100 hover:shadow-2xl transition"
               >
                 <div className="mb-4 flex items-center justify-between">
-                  <div className="text-lg font-bold text-blue-700 flex items-center gap-2">
+                  <div className="text-blue-700 flex items-center gap-3 text-lg font-semibold">
                     {booking.service.icon && (
                       <span className="text-2xl">{booking.service.icon}</span>
                     )}
-                    {booking.service.name}
+                    <span className="flex items-baseline gap-2">
+                      <span className="font-bold text-blue-700">
+                        {booking.service.name}
+                      </span>
+                      <span className="text-black">-</span>
+                      <span className="text-sm text-gray-500">
+                        {booking.selectedOptionType}
+                      </span>
+                    </span>
                   </div>
+
                   <span
                     className={`text-xs px-3 py-1 rounded-full font-semibold text-white ${
                       booking.status === "pending"
                         ? "bg-yellow-400"
                         : booking.status === "assigned"
                         ? "bg-blue-500"
+                        : booking.status === "cancelled"
+                        ? "bg-red-500"
                         : "bg-green-600"
                     }`}
                   >
@@ -107,18 +123,38 @@ export default function MyBookingsPage() {
                 <p className="text-sm text-gray-600 mb-1">
                   <strong>Địa chỉ:</strong> {booking.address}
                 </p>
-                {booking.note && (
+                <p className="text-sm text-gray-600 mb-1">
+                  <strong>Giá:</strong>{" "}
+                  {formatVND(Number(booking.selectedPrice))}
+                </p>
+                {booking.note !== "" ? (
                   <p className="text-sm text-gray-500 mb-1">
-                    <strong>Ghi chú:</strong> {booking.note}
+                    <strong className="text-orange-500">Ghi chú:</strong>{" "}
+                    {booking.note}
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-500 mb-1">
+                    <strong>Ghi chú:</strong> Không có
                   </p>
                 )}
 
                 <div className="text-right">
+                  {booking.status === "pending" && booking.rating == null && (
+                    <button className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
+                      Hủy dịch vụ
+                    </button>
+                  )}
+                </div>
+
+                <div className="text-right">
                   {booking.status === "done" && booking.rating == null && (
-                    <button className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">
+                    <Link
+                      href={`/my-bookings/${booking._id}/review`}
+                      className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
+                    >
                       <Star size={18} />
                       Đánh giá dịch vụ
-                    </button>
+                    </Link>
                   )}
                 </div>
               </motion.div>

@@ -1,3 +1,7 @@
+interface FAQItem {
+  question: string;
+  answer: string;
+}
 interface IServiceOption {
   _id: string;
   optionType: string;
@@ -27,7 +31,6 @@ interface Service {
   isLoading: boolean;
   error: string | null;
 }
-
 interface Product {
   _id: string;
   name: string;
@@ -40,7 +43,23 @@ interface Product {
   };
 }
 
-interface FAQItem {
-  question: string;
-  answer: string;
+interface IBooking {
+  id: string;
+  service: string;
+  selectedOptionType: string;
+  selectedPrice: string;
+  date: string;
+  time: string;
+  address: string;
+  note: string;
+}
+
+interface IReivew {
+  rating: number;
+  comment: string;
+}
+
+interface IGetReview extends IReivew {
+  _id: string;
+  user: { id: string; name: string };
 }

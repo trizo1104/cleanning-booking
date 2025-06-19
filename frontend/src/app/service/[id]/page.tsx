@@ -2,9 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import { ArrowLeftCircle, ArrowRightCircle } from "lucide-react";
 import { AppDispatch } from "@/store/store";
 import { useDispatch, useSelector } from "react-redux";
 import { getDetailService } from "@/slices/serviceSlice";
@@ -13,34 +10,27 @@ import { fetchProductsService } from "@/slices/productSlice";
 import Image from "next/image";
 import RegisterService from "@/components/RegisterService";
 import { settings, settingsHero } from "@/components/carousel";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import Link from "next/link";
+import { getAllReview } from "@/slices/bookingSlice";
 
 const ServiceDetail = () => {
-  const [feedbacks] = useState([
-    {
-      id: 1,
-      name: "Minh Khương",
-      text: "Mình rất hài lòng với dịch vụ, rất cảm ơn bạn đã giúp mình!",
-      rating: 4,
-    },
-    {
-      id: 2,
-      name: "Thanh Hằng",
-      text: "Mình thấy app rất tiện lợi. Nhân viên thân thiện và hỗ trợ nhiệt tình. Cảm ơn bạn!",
-      rating: 4,
-    },
-  ]);
-
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
   const dispatch = useDispatch<AppDispatch>();
   const { service, isLoading } = useSelector((state: any) => state.service);
   const { products } = useSelector((state: any) => state.product);
+  const { review } = useSelector((state: any) => state.booking);
+
+  console.log(review);
 
   useEffect(() => {
     if (id) {
       dispatch(getDetailService(id));
       dispatch(fetchProductsService(id));
+      dispatch(getAllReview(id));
     } else {
       return notFound();
     }
@@ -219,10 +209,10 @@ const ServiceDetail = () => {
               <h2 className="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-blue-200 pb-2">
                 Phản hồi của khách hàng
               </h2>
-              {feedbacks.length > 0 ? (
-                feedbacks.map((feedback) => (
+              {review.length > 0 ? (
+                review.map((feedback: IGetReview) => (
                   <div
-                    key={feedback?.id}
+                    key={feedback?._id}
                     className="bg-white p-6 rounded-lg shadow-lg mb-6 max-w-2xl mx-auto"
                   >
                     <div className="flex items-center space-x-2">
@@ -251,10 +241,10 @@ const ServiceDetail = () => {
                     </div>
 
                     <p className="text-gray-700 italic mb-4">
-                      {feedback?.text}
+                      {feedback?.comment}
                     </p>
                     <p className="text-blue-500 font-semibold">
-                      {feedback?.name}
+                      {feedback?.user.name}
                     </p>
                   </div>
                 ))
@@ -301,12 +291,12 @@ const ServiceDetail = () => {
               </div>
 
               <div className="mt-8 text-center animate-fade-in-up animation-delay-1600">
-                <a
-                  href="/book"
+                <Link
+                  href={`/booking/${id}`}
                   className="inline-block w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                 >
                   Đặt Dịch Vụ Ngay
-                </a>
+                </Link>
               </div>
             </div>
           </div>

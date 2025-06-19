@@ -2,9 +2,10 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
-import { logoutUser, setUser } from "@/slices/authSlice";
+import { fetchCurrentUser, logoutUser, setUser } from "@/slices/authSlice";
 import { CircleUserRound } from "lucide-react";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 interface NavItem {
   label: string;
@@ -25,14 +26,11 @@ const Header = () => {
 
   const handleLogout = () => {
     dispatch(logoutUser());
+    toast.success("Logout success");
   };
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      const user = JSON.parse(stored);
-      dispatch(setUser(user));
-    }
+    dispatch(fetchCurrentUser());
   }, []);
 
   return (
@@ -82,11 +80,17 @@ const Header = () => {
                 {isAuthenticated ? (
                   <>
                     <a
-                      href="/profile"
+                      href="/my-bookings"
                       className="block px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-500 transition-colors duration-200"
                     >
-                      Profile
+                      My Bookings
                     </a>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-500 transition-colors duration-200"
+                    >
+                      Profile
+                    </button>
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-500 transition-colors duration-200"

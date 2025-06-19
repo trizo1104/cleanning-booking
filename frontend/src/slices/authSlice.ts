@@ -79,6 +79,18 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+export const fetchCurrentUser = createAsyncThunk(
+  "auth/fetchCurrentUser",
+  async (_, thunkAPI) => {
+    try {
+      const res = await axiosInstance.get("/auth/me");
+      return res.data;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue("Failed to fetch user");
+    }
+  }
+);
+
 const authsSlice = createSlice({
   name: "auth",
   initialState,
@@ -104,14 +116,12 @@ const authsSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
-
-        localStorage.setItem("user", JSON.stringify(action.payload));
       }
     );
     builder.addCase(loginUser.rejected, (state, action: PayloadAction<any>) => {
       state.isLoading = false;
-      state.user = null; // Optional
-      state.isAuthenticated = false; // Optional
+      state.user = null;
+      state.isAuthenticated = false;
       state.error = action.payload;
     });
 
@@ -159,6 +169,17 @@ const authsSlice = createSlice({
     );
 
     builder.addCase(loadUserFromStorage.rejected, (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+    });
+
+    //me
+    builder.addCase(fetchCurrentUser.fulfilled, (state, action) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+    });
+
+    builder.addCase(fetchCurrentUser.rejected, (state) => {
       state.user = null;
       state.isAuthenticated = false;
     });

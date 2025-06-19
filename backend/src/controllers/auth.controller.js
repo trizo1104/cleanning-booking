@@ -78,4 +78,20 @@ const signOut = async (req, res) => {
   }
 };
 
-module.exports = { signUp, signIn, signOut };
+const auth = async (req, res) => {
+  try {
+    const user = req.user;
+
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+  } catch (error) {
+    console.log("auth error: ", error);
+    return res.status(500).json({ mess: "Internal server" });
+  }
+};
+
+module.exports = { signUp, signIn, signOut, auth };

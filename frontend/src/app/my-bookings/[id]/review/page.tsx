@@ -4,15 +4,22 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "@/store/store";
+import { reviewBooking } from "@/slices/bookingSlice";
+import { toast } from "react-toastify";
 
 export default function ReviewBookingPage() {
-  const { id } = useParams();
   const router = useRouter();
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [review, setReview] = useState("");
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const params = useParams();
+  const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
+
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoading } = useSelector((state: any) => state.booking);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,26 +27,21 @@ export default function ReviewBookingPage() {
       setMessage("Vui lòng chọn số sao đánh giá");
       return;
     }
-
-    setLoading(true);
     try {
-      const res = await fetch(`/api/bookings/${id}/review`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rating, review }),
-      });
+      if (id) {
+        const resultAction = await dispatch(
+          reviewBooking({ id, data: { rating, comment: review.trim() } })
+        );
 
-      if (res.ok) {
-        setMessage("Đánh giá thành công!");
-        setTimeout(() => router.push("/my-bookings"), 1500);
-      } else {
-        const err = await res.json();
-        setMessage(err.message || "Có lỗi xảy ra");
+        if (reviewBooking.fulfilled.match(resultAction)) {
+          toast.success("Review success");
+          router.push("/my-bookings");
+        } else if (reviewBooking.rejected.match(resultAction)) {
+          toast.error(`Review failed: ${resultAction.payload}`);
+        }
       }
     } catch (error) {
       setMessage("Lỗi kết nối máy chủ.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -100,10 +102,10 @@ export default function ReviewBookingPage() {
               type="submit"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              disabled={loading}
+              disabled={isLoading}
               className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold shadow-lg hover:bg-blue-700 transition"
             >
-              {loading ? "Đang gửi..." : "Gửi đánh giá"}
+              {isLoading ? "Đang gửi..." : "Gửi đánh giá"}
             </motion.button>
 
             {/* Message */}
