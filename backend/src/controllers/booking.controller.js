@@ -58,54 +58,47 @@ const getAllBookings = async (req, res) => {
   }
 };
 
-const assignEmployee = async (req, res) => {
+const assignStaff = async (req, res) => {
   const { employeeId } = req.body;
+  const { id } = req.params;
 
   try {
-    const booking = await Booking.findById(req.params.id);
+    const booking = await Booking.findById(id);
     if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    const employee = await Employee.findById(employeeId);
+    if (!employee || employee.role !== "staff")
+      return res.status(404).json({ message: "Staff not found" });
 
     booking.employee = employeeId;
     booking.status = "assigned";
+
     await booking.save();
 
-    res.json({ message: "Employee assigned successfully", booking });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to assign employee" });
-  }
-};
-
-const getTodayBookingsForEmployee = async (req, res) => {
-  try {
-    const today = new Date().toISOString().split("T")[0];
-    const bookings = await Booking.find({
-      employee: req.user._id,
-      date: today,
-    }).sort({ time: 1 });
-    res.json(bookings);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch today's bookings" });
-  }
-};
-
-const markBookingCompleted = async (req, res) => {
-  try {
-    const booking = await Booking.findById(req.params.id);
-    if (!booking) return res.status(404).json({ message: "Booking not found" });
-
-    if (booking.employee.toString() !== req.user._id.toString()) {
-      return res
-        .status(403)
-        .json({ message: "You are not authorized to update this booking" });
+    if (!employee.assignedBookings.includes(booking._id)) {
+      employee.assignedBookings.push(booking._id);
+      await employee.save();
     }
 
-    booking.status = "done";
-    booking.completedAt = new Date();
+    res.json({ message: "Staff assigned successfully", booking });
+  } catch (error) {
+    console.error("assignStaff error", error);
+    res.status(500).json({ message: "Failed to assign staff" });
+  }
+};
+
+const cancelBooking = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const booking = await Booking.findById(id);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    booking.status = "cancelled";
     await booking.save();
 
-    res.json({ message: "Booking marked as completed" });
+    res.json({ message: "Booking cancelled" });
   } catch (error) {
-    res.status(500).json({ message: "Failed to update booking status" });
+    res.status(500).json({ message: "Failed to cancel booking" });
   }
 };
 
@@ -116,11 +109,6 @@ const reviewBooking = async (req, res) => {
     const booking = await Booking.findById(req.params.id);
 
     if (!booking) return res.status(404).json({ message: "Booking not found" });
-
-    // if (String(booking.user) !== String(req.user._id))
-    //   return res
-    //     .status(403)
-    //     .json({ message: "You do not have permission to rate this booking" });
 
     if (booking.status !== "done")
       return res
@@ -167,13 +155,34 @@ const getReviewsByService = async (req, res) => {
   }
 };
 
+const getAllReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find()
+      .populate("user", "name")
+      .populate("service", "name");
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch reviews" });
+  }
+};
+
+const deleteReview = async (req, res) => {
+  try {
+    await Review.findByIdAndDelete(req.params.id);
+    res.json({ message: "Review deleted" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete review" });
+  }
+};
+
 module.exports = {
   createBooking,
   getMyBookings,
   getAllBookings,
-  assignEmployee,
-  getTodayBookingsForEmployee,
-  markBookingCompleted,
   reviewBooking,
   getReviewsByService,
+  assignStaff,
+  cancelBooking,
+  getAllReviews,
+  deleteReview,
 };

@@ -29,7 +29,10 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
 
-  const hideHeader = pathname === "/login" || pathname === "/signup";
+  const hideHeader =
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/login-staff";
   return (
     <html lang="en">
       <head>

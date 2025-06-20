@@ -22,26 +22,23 @@ bookingRoute.get(
   bookingController.getAllBookings
 );
 
-bookingRoute.put(
+bookingRoute.get(
+  "/allReviews",
+  middleware.protectRoute,
+  middleware.adminOnly,
+  bookingController.getAllReviews
+);
+
+bookingRoute.post(
   "/:id/assign",
   middleware.protectRoute,
   middleware.adminOnly,
-  bookingController.assignEmployee
+  bookingController.assignStaff
 );
 
-bookingRoute.get(
-  "/employee/today",
-  middleware.protectRoute,
-  middleware.employeeOnly,
-  bookingController.getTodayBookingsForEmployee
-);
+bookingRoute.post("cancel/:id", bookingController.cancelBooking);
 
-bookingRoute.put(
-  "/:id/complete",
-  middleware.protectRoute,
-  middleware.employeeOnly,
-  bookingController.markBookingCompleted
-);
+bookingRoute.post("deletểview/:id", bookingController.deleteReview);
 
 bookingRoute.post(
   "/:id/review",

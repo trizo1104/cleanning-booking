@@ -72,4 +72,30 @@ const createService = async (req, res) => {
   }
 };
 
-module.exports = { getAllServices, createService, getServiceDetail };
+const updateService = async (req, res) => {
+  try {
+    const service = await Service.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.json(service);
+  } catch (err) {
+    res.status(400).json({ message: "Failed to update service" });
+  }
+};
+
+const deleteService = async (req, res) => {
+  try {
+    await Service.findByIdAndDelete(req.params.id);
+    res.json({ message: "Service deleted" });
+  } catch (err) {
+    res.status(400).json({ message: "Failed to delete service" });
+  }
+};
+
+module.exports = {
+  getAllServices,
+  createService,
+  getServiceDetail,
+  updateService,
+  deleteService,
+};

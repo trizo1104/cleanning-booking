@@ -11,12 +11,14 @@ const bookingSchema = new mongoose.Schema({
   time: { type: String, required: true },
   address: { type: String, required: true },
   note: { type: String },
+  noteFromStaff: { type: String },
   status: {
     type: String,
     enum: ["pending", "assigned", "done", "cancelled"],
     default: "pending",
   },
   selectedOptionType: { type: String },
+  assignedStaff: { type: mongoose.Schema.Types.ObjectId, ref: "Employee" },
   selectedPrice: { type: Number },
   createdAt: { type: Date, default: Date.now },
 });

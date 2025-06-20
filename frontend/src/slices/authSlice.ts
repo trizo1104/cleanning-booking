@@ -1,4 +1,9 @@
-import { loginAPI, logoutAPI, signUpAPI } from "@/app/Api/authAPI";
+import {
+  loginAPI,
+  loginEmployeeAPI,
+  logoutAPI,
+  signUpAPI,
+} from "@/app/Api/authAPI";
 import axiosInstance from "@/lib/axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { PayloadAction } from "@reduxjs/toolkit";
@@ -53,6 +58,24 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const loginStaff = createAsyncThunk(
+  "auth/signin-staff",
+  async (credentials: { email: string; password: string }, thunkAPI) => {
+    try {
+      const response = await axiosInstance.post(loginEmployeeAPI, credentials);
+      const data = response.data;
+      if (!data || !data._id) {
+        throw new Error("Invalid API response");
+      }
+      return data;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Login failed"
+      );
+    }
+  }
+);
+
 export const signUp = createAsyncThunk(
   "auth/signUp",
   async (data: { name: string; email: string; password: string }, thunkAPI) => {
@@ -60,7 +83,7 @@ export const signUp = createAsyncThunk(
       const res = await axiosInstance.post(signUpAPI, data);
       return res.data;
     } catch (err: any) {
-      return thunkAPI.rejectWithValue(err.response?.data?.mess);
+      return thunkAPI.rejectWithValue(err.response?.data?.message);
     }
   }
 );
@@ -73,7 +96,7 @@ export const logoutUser = createAsyncThunk(
       return res.data;
     } catch (err: any) {
       return thunkAPI.rejectWithValue(
-        err.response?.data?.mess || "Logout failed"
+        err.response?.data?.message || "Logout failed"
       );
     }
   }
@@ -125,6 +148,28 @@ const authsSlice = createSlice({
       state.error = action.payload;
     });
 
+    // login-staff
+    builder.addCase(loginStaff.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
+    builder.addCase(
+      loginStaff.fulfilled,
+      (state, action: PayloadAction<User>) => {
+        state.isLoading = false;
+        state.user = action.payload;
+        state.isAuthenticated = true;
+      }
+    );
+    builder.addCase(
+      loginStaff.rejected,
+      (state, action: PayloadAction<any>) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+        state.error = action.payload;
+      }
+    );
     //signup
     builder.addCase(signUp.pending, (state) => {
       state.isLoading = true;

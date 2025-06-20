@@ -9,25 +9,8 @@ import { setUser } from "@/slices/authSlice";
 import { formatVND } from "@/lib/format";
 import Link from "next/link";
 
-type Booking = {
-  _id: string;
-  service: {
-    name: string;
-    icon?: string;
-  };
-  date: string;
-  time: string;
-  address: string;
-  note?: string;
-  status: "pending" | "assigned" | "done" | "cancelled";
-  rating?: number;
-  review?: string;
-  selectedOptionType: string;
-  selectedPrice: string;
-};
-
 export default function MyBookingsPage() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<IGetBooking[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

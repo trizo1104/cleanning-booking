@@ -63,3 +63,27 @@ interface IGetReview extends IReivew {
   _id: string;
   user: { id: string; name: string };
 }
+
+interface IGetBooking {
+  _id: string;
+  service: {
+    name: string;
+    icon?: string;
+  };
+  date: string;
+  time: string;
+  address: string;
+  note?: string;
+  status: "pending" | "assigned" | "done" | "cancelled";
+  rating?: number;
+  review?: string;
+  selectedOptionType: string;
+  selectedPrice: string;
+}
+
+interface IAssignBookings extends IGetBooking {
+  user: {
+    name: string;
+    phone: string;
+  };
+}

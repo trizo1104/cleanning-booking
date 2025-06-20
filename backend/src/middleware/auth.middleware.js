@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const Employee = require("../models/employee");
 
 const protectRoute = async (req, res, next) => {
   try {
@@ -19,7 +20,14 @@ const protectRoute = async (req, res, next) => {
     if (!decode)
       return res.status(401).json({ mess: "Unauthorized - Invalid token" });
 
-    const user = await User.findById(decode.userId).select("-password");
+    let user = null;
+
+    if (decode.role === "user") {
+      user = await User.findById(decode.userId).select("-password");
+    } else {
+      user = await Employee.findById(decode.userId).select("-password");
+    }
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -33,6 +41,14 @@ const protectRoute = async (req, res, next) => {
   }
 };
 
+const userOnly = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    res.status(403).json({ message: "Access denied: User only" });
+  }
+};
+
 const adminOnly = (req, res, next) => {
   if (req.user && req.user.role === "admin") {
     next();
@@ -42,11 +58,11 @@ const adminOnly = (req, res, next) => {
 };
 
 const employeeOnly = (req, res, next) => {
-  if (req.user && req.user.role === "employee") {
+  if (req.user && req.user.role === "staff") {
     next();
   } else {
     res.status(403).json({ message: "Access denied: Employees only" });
   }
 };
 
-module.exports = { protectRoute, adminOnly, employeeOnly };
+module.exports = { protectRoute, adminOnly, employeeOnly, userOnly };
