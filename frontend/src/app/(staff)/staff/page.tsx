@@ -13,24 +13,32 @@ import {
   updateBookingStatus,
 } from "@/slices/employeeSlice";
 import { assignStaff } from "@/slices/bookingSlice";
+import { getAssBookings, updateBookingStatus } from "@/slices/employeeSlice";
+import { fetchCurrentUser } from "@/slices/authSlice";
 
 export default function StaffDashboard() {
   const [bookings, setBookings] = useState<IAssignBookings[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [note, setNote] = useState("");
+  const dispatch = useDispatch<AppDispatch>();
 
   const dishpatch = useDispatch<AppDispatch>();
   const { assBookings, pendingBookings } = useSelector(
     (state: any) => state.employee
   );
   const { user } = useSelector((state: any) => state.auth);
+  const { assBookings } = useSelector((state: any) => state.employee);
 
   useEffect(() => {
-    dishpatch(getAssBookings());
+    dispatch(fetchCurrentUser());
+  }, []);
+
+  useEffect(() => {
+    dispatch(getAssBookings());
   }, []);
 
   const updateStatus = async (id: string, status: string) => {
-    dishpatch(updateBookingStatus({ id, status }));
+    dispatch(updateBookingStatus({ id, status }));
   };
 
   const handleAcceptBooking = (bookingId: string, staffId: string) => {

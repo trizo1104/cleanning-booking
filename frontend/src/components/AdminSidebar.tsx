@@ -11,8 +11,9 @@ import {
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
-import { logoutUser } from "@/slices/authSlice";
+import { fetchCurrentUser, logoutUser } from "@/slices/authSlice";
 import { toast } from "react-toastify";
+import { useEffect } from "react";
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard/admin" },
@@ -33,6 +34,10 @@ export default function AdminSidebar() {
     toast.success("Logout success");
     router.push("/login-staff");
   };
+
+  useEffect(() => {
+    dispatch(fetchCurrentUser());
+  }, []);
   return (
     <aside className="w-64 min-h-screen bg-white border-r shadow-sm px-4 py-6 flex flex-col justify-between">
       <div>
