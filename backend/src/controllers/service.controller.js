@@ -33,7 +33,6 @@ const createService = async (req, res) => {
     const {
       name,
       icon,
-      category,
       serviceOptions,
       duration,
       description,
@@ -50,7 +49,6 @@ const createService = async (req, res) => {
     const service = await Service.create({
       name,
       icon,
-      category,
       serviceOptions,
       duration,
       description,
@@ -74,10 +72,10 @@ const createService = async (req, res) => {
 
 const updateService = async (req, res) => {
   try {
-    const service = await Service.findByIdAndUpdate(req.params.id, req.body, {
+    await Service.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    res.json(service);
+    res.status(200).json({ message: "Update service success" });
   } catch (err) {
     res.status(400).json({ message: "Failed to update service" });
   }

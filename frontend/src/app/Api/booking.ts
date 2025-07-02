@@ -6,3 +6,8 @@ export const reviewBookingAPI = (id: string) => {
 
 export const getReviewAPI = (serviceId: string) =>
   `/booking/service/${serviceId}`;
+
+export const getAllReviewAdmin = "/booking/allReviews";
+
+export const deleteReviewAPI = (serviceId: string) =>
+  `/booking/deleteReview/${serviceId}`;

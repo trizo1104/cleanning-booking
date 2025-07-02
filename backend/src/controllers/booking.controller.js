@@ -159,7 +159,8 @@ const getAllReviews = async (req, res) => {
   try {
     const reviews = await Review.find()
       .populate("user", "name")
-      .populate("service", "name");
+      .populate("service", "name")
+      .populate("booking", "selectedOptionType");
     res.json(reviews);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch reviews" });
@@ -169,7 +170,7 @@ const getAllReviews = async (req, res) => {
 const deleteReview = async (req, res) => {
   try {
     await Review.findByIdAndDelete(req.params.id);
-    res.json({ message: "Review deleted" });
+    res.json({ message: "Review deleted success" });
   } catch (error) {
     res.status(500).json({ message: "Failed to delete review" });
   }

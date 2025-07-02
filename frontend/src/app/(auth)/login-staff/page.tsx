@@ -39,7 +39,7 @@ function LoginStaff() {
           if (role === "staff") {
             router.push("/staff");
           } else if (role === "admin") {
-            router.push("/dashboard");
+            router.push("/dashboard/admin");
           }
         } else if (loginStaff.rejected.match(resultAction)) {
           toast.error(`Login failed: ${resultAction.payload}`);

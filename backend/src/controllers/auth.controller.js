@@ -4,11 +4,13 @@ const Employee = require("../models/employee");
 const bcrypt = require("bcrypt");
 
 const signUp = async (req, res) => {
-  const { email, password, name } = req.body;
+  const { email, password, name, phone } = req.body;
   try {
-    if (!email || !password || !name)
+    if (!email || !password || !name || !phone)
       return res.status(400).json({ mess: "Fill all fields" });
-
+    if (phone.length < 10 || phone.length > 10) {
+      return res.status(400).json({ mess: "Invalid phone number" });
+    }
     const checkEmailExist = await User.findOne({ email });
     if (checkEmailExist)
       return res.status(400).json({ mess: "Email is already exist" });
@@ -22,11 +24,12 @@ const signUp = async (req, res) => {
       name,
       email,
       role: "user",
+      phone,
       password: hashPass,
     });
 
     if (newUser) {
-      generateToken(newUser._id, newUser.role, res);
+      // generateToken(newUser._id, newUser.role, res);
       newUser.save();
 
       return res.status(201).json({
@@ -101,13 +104,13 @@ const signUpEmployee = async (req, res) => {
   const { email, password, name, phone, role } = req.body;
 
   try {
-    if (!email || !password || !name || !phone || !role) {
+    if (!email || !password || !name || !phone) {
       return res.status(400).json({ mess: "Please fill all fields" });
     }
 
-    if (!["staff", "admin"].includes(role)) {
-      return res.status(400).json({ mess: "Inavlid role" });
-    }
+    // if (!["staff", "admin"].includes(role)) {
+    //   return res.status(400).json({ mess: "Inavlid role" });
+    // }
 
     const checkEmailExist = await Employee.findOne({ email });
     if (checkEmailExist) {
@@ -129,13 +132,13 @@ const signUpEmployee = async (req, res) => {
       name,
       email,
       phone,
-      role,
+      role: "staff",
       password: hashPass,
       status: "active",
     });
 
     await newEmployee.save();
-    generateToken(newEmployee._id, newEmployee.role, res);
+    // generateToken(newEmployee._id, newEmployee.role, res);
 
     return res.status(201).json({
       _id: newEmployee._id,
@@ -175,6 +178,57 @@ const auth = async (req, res) => {
   }
 };
 
+const getAllUser = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    return res.status(200).json(users);
+  } catch (error) {
+    console.log("auth error: ", error);
+    return res.status(500).json({ mess: "Internal server" });
+  }
+};
+
+const getAllEmployee = async (req, res) => {
+  try {
+    const users = await Employee.find().select("-password");
+    return res.status(200).json(users);
+  } catch (error) {
+    console.log("auth error: ", error);
+    return res.status(500).json({ mess: "Internal server" });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: "User deleted success" });
+  } catch (error) {
+    console.log("auth error: ", error);
+    return res.status(500).json({ mess: "Internal server" });
+  }
+};
+
+const deleteEmployee = async (req, res) => {
+  try {
+    const employee = await Employee.findById(req.params.id);
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    if (employee.role === "admin") {
+      return res.status(403).json({ message: "Cannot delete admin account" });
+    }
+
+    await Employee.findByIdAndDelete(req.params.id);
+
+    return res.status(200).json({ message: "Employee deleted successfully" });
+  } catch (error) {
+    console.error("Delete employee error: ", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   signUp,
   signIn,
@@ -182,4 +236,8 @@ module.exports = {
   auth,
   signInforEmployee,
   signUpEmployee,
+  getAllUser,
+  getAllEmployee,
+  deleteUser,
+  deleteEmployee,
 };

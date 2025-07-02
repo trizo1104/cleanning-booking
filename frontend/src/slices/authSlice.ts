@@ -1,44 +1,36 @@
 import {
+  deleteEmployeeAPI,
+  deleteUserAPI,
+  getAllEmployeeAPI,
+  getAllUserAPI,
   loginAPI,
   loginEmployeeAPI,
   logoutAPI,
+  meAPI,
   signUpAPI,
+  signupEmployeeAPI,
 } from "@/app/Api/authAPI";
 import axiosInstance from "@/lib/axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { PayloadAction } from "@reduxjs/toolkit";
 
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-  role: string;
-}
-
 interface AuthState {
   user: User | null;
+  users: User[];
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  mess: string;
 }
 
 const initialState: AuthState = {
   user: null,
+  users: [],
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  mess: "",
 };
-
-export const loadUserFromStorage = createAsyncThunk(
-  "auth/loadUser",
-  async (_, thunkAPI) => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      return JSON.parse(user);
-    }
-    return thunkAPI.rejectWithValue("No user found");
-  }
-);
 
 export const loginUser = createAsyncThunk(
   "auth/signin",
@@ -78,12 +70,30 @@ export const loginStaff = createAsyncThunk(
 
 export const signUp = createAsyncThunk(
   "auth/signUp",
-  async (data: { name: string; email: string; password: string }, thunkAPI) => {
+  async (
+    data: { name: string; email: string; password: string; phone: string },
+    thunkAPI
+  ) => {
     try {
       const res = await axiosInstance.post(signUpAPI, data);
       return res.data;
     } catch (err: any) {
-      return thunkAPI.rejectWithValue(err.response?.data?.message);
+      return thunkAPI.rejectWithValue(err.response?.data?.mess);
+    }
+  }
+);
+
+export const signUpStaff = createAsyncThunk(
+  "auth/signUpstaff",
+  async (
+    data: { name: string; email: string; password: string; phone: string },
+    thunkAPI
+  ) => {
+    try {
+      const res = await axiosInstance.post(signupEmployeeAPI, data);
+      return res.data;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(err.response?.data?.mess);
     }
   }
 );
@@ -106,10 +116,62 @@ export const fetchCurrentUser = createAsyncThunk(
   "auth/fetchCurrentUser",
   async (_, thunkAPI) => {
     try {
-      const res = await axiosInstance.get("/auth/me");
+      const res = await axiosInstance.get(meAPI);
       return res.data;
     } catch (err: any) {
       return thunkAPI.rejectWithValue("Failed to fetch user");
+    }
+  }
+);
+
+export const getAllUser = createAsyncThunk(
+  "auth/allUser",
+  async (_, thunkAPI) => {
+    try {
+      const res = await axiosInstance.get(getAllUserAPI);
+      return res.data;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue("Failed to fetch user");
+    }
+  }
+);
+
+export const getAllEmployee = createAsyncThunk(
+  "auth/allEmployee",
+  async (_, thunkAPI) => {
+    try {
+      const res = await axiosInstance.get(getAllEmployeeAPI);
+      return res.data;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue("Failed to fetch user");
+    }
+  }
+);
+
+export const deleteUser = createAsyncThunk(
+  "auth/deleteUser",
+  async (id: string, thunkAPI) => {
+    try {
+      const res = await axiosInstance.post(deleteUserAPI(id));
+      return res.data.message;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch products"
+      );
+    }
+  }
+);
+
+export const deleteEmployee = createAsyncThunk(
+  "auth/deleteEmployee",
+  async (id: string, thunkAPI) => {
+    try {
+      const res = await axiosInstance.post(deleteEmployeeAPI(id));
+      return res.data.message;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch products"
+      );
     }
   }
 );
@@ -184,6 +246,22 @@ const authsSlice = createSlice({
       state.error = action.payload;
     });
 
+    builder.addCase(signUpStaff.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
+    builder.addCase(signUpStaff.fulfilled, (state) => {
+      state.isLoading = false;
+      state.error = null;
+    });
+    builder.addCase(
+      signUpStaff.rejected,
+      (state, action: PayloadAction<any>) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      }
+    );
+
     //logout
     builder.addCase(logoutUser.pending, (state) => {
       state.isLoading = true;
@@ -194,6 +272,7 @@ const authsSlice = createSlice({
       state.user = null;
       state.error = null;
       state.isAuthenticated = false;
+      state.isLoading = false;
       localStorage.removeItem("user");
     });
 
@@ -204,17 +283,41 @@ const authsSlice = createSlice({
       }
     );
 
-    //loadUserFromStorage
+    //get all user
+    builder.addCase(getAllUser.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
     builder.addCase(
-      loadUserFromStorage.fulfilled,
-      (state, action: PayloadAction<User>) => {
-        state.user = action.payload;
+      getAllUser.fulfilled,
+      (state, action: PayloadAction<User[]>) => {
+        state.users = action.payload;
+        state.isLoading = false;
         state.isAuthenticated = true;
       }
     );
-
-    builder.addCase(loadUserFromStorage.rejected, (state) => {
+    builder.addCase(getAllUser.rejected, (state) => {
       state.user = null;
+      state.isLoading = false;
+      state.isAuthenticated = false;
+    });
+
+    //get all employee
+    builder.addCase(getAllEmployee.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
+    builder.addCase(
+      getAllEmployee.fulfilled,
+      (state, action: PayloadAction<User[]>) => {
+        state.users = action.payload;
+        state.isLoading = false;
+        state.isAuthenticated = true;
+      }
+    );
+    builder.addCase(getAllEmployee.rejected, (state) => {
+      state.user = null;
+      state.isLoading = false;
       state.isAuthenticated = false;
     });
 
@@ -228,6 +331,46 @@ const authsSlice = createSlice({
       state.user = null;
       state.isAuthenticated = false;
     });
+
+    //delete user
+    builder.addCase(deleteUser.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
+    builder.addCase(
+      deleteUser.fulfilled,
+      (state, action: PayloadAction<string>) => {
+        state.mess = action.payload;
+        state.isLoading = false;
+      }
+    );
+    builder.addCase(
+      deleteUser.rejected,
+      (state, action: PayloadAction<any>) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      }
+    );
+
+    //delete employee
+    builder.addCase(deleteEmployee.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
+    builder.addCase(
+      deleteEmployee.fulfilled,
+      (state, action: PayloadAction<string>) => {
+        state.mess = action.payload;
+        state.isLoading = false;
+      }
+    );
+    builder.addCase(
+      deleteEmployee.rejected,
+      (state, action: PayloadAction<any>) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      }
+    );
   },
 });
 

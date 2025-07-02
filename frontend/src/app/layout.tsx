@@ -32,7 +32,9 @@ export default function RootLayout({
   const hideHeader =
     pathname === "/login" ||
     pathname === "/signup" ||
-    pathname === "/login-staff";
+    pathname === "/login-staff" ||
+    pathname === "/staff" ||
+    pathname.startsWith("/dashboard");
   return (
     <html lang="en">
       <head>

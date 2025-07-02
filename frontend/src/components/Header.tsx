@@ -6,6 +6,7 @@ import { fetchCurrentUser, logoutUser, setUser } from "@/slices/authSlice";
 import { CircleUserRound } from "lucide-react";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 interface NavItem {
   label: string;
@@ -23,10 +24,12 @@ const navItems: NavItem[] = [
 const Header = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const router = useRouter();
 
   const handleLogout = () => {
     dispatch(logoutUser());
     toast.success("Logout success");
+    router.push("/login");
   };
 
   useEffect(() => {

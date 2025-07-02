@@ -20,3 +20,19 @@ export const convert12hTo24h = (time12h: string) => {
     .toString()
     .padStart(2, "0")}`;
 };
+
+export function formatDateTime(isoString: string): string {
+  const date = new Date(isoString);
+
+  const options: Intl.DateTimeFormatOptions = {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Ho_Chi_Minh",
+  };
+
+  return new Intl.DateTimeFormat("vi-VN", options).format(date);
+}

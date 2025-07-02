@@ -13,6 +13,7 @@ type FormDataSignUp = {
   name: string;
   email: string;
   password: string;
+  phone: string;
 };
 
 function SignUp() {
@@ -22,6 +23,7 @@ function SignUp() {
     name: "",
     email: "",
     password: "",
+    phone: "",
   });
 
   const { isLoading } = useSelector((state: any) => state.auth);
@@ -77,6 +79,24 @@ function SignUp() {
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium">Phone number</span>
+              </label>
+
+              <div className="relative">
+                <input
+                  type="text"
+                  className={`input input-bordered w-full`}
+                  placeholder="0000000000"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
                   }
                 />
               </div>

@@ -89,7 +89,7 @@ function RegisterService() {
 
         <div className="w-full lg:w-1/2 flex justify-center relative">
           <div
-            className={`bg-gradient-to-br ${stepsImg[imageIndex].bg} p-6 rounded-3xl shadow-xl transition-transform duration-300 h-[600px] flex items-center justify-center`}
+            className={`bg-gradient-to-br ${stepsImg[imageIndex].bg} p-6 rounded-3xl shadow-xl transition-transform duration-300 h-[750px] flex items-center justify-center`}
           >
             <Image
               src={stepsImg[imageIndex].image}

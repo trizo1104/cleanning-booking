@@ -2,6 +2,8 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "@/lib/axios";
 import {
   createBookingAPI,
+  deleteReviewAPI,
+  getAllReviewAdmin,
   getReviewAPI,
   reviewBookingAPI,
 } from "@/app/Api/booking";
@@ -63,6 +65,34 @@ export const getAllReview = createAsyncThunk(
   }
 );
 
+export const getAllReviewForAdmin = createAsyncThunk(
+  "booking/getReviewAdmin",
+  async (_, thunkAPI) => {
+    try {
+      const res = await axiosInstance.get(getAllReviewAdmin);
+      return res.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch products"
+      );
+    }
+  }
+);
+
+export const deleteReview = createAsyncThunk(
+  "booking/deleteReview",
+  async (id: string, thunkAPI) => {
+    try {
+      const res = await axiosInstance.post(deleteReviewAPI(id));
+      return res.data.message;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch products"
+      );
+    }
+  }
+);
+
 const bookingSlice = createSlice({
   name: "booking",
   initialState,
@@ -106,6 +136,40 @@ const bookingSlice = createSlice({
         }
       )
       .addCase(getAllReview.rejected, (state, action: PayloadAction<any>) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(getAllReviewForAdmin.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(
+        getAllReviewForAdmin.fulfilled,
+        (state, action: PayloadAction<IGetReview[]>) => {
+          state.isLoading = false;
+          state.review = action.payload;
+        }
+      )
+      .addCase(
+        getAllReviewForAdmin.rejected,
+        (state, action: PayloadAction<any>) => {
+          state.isLoading = false;
+          state.error = action.payload;
+        }
+      )
+
+      .addCase(deleteReview.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+
+      .addCase(deleteReview.fulfilled, (state, action: PayloadAction<any>) => {
+        state.isLoading = false;
+        state.mess = action.payload;
+      })
+
+      .addCase(deleteReview.rejected, (state, action: PayloadAction<any>) => {
         state.isLoading = false;
         state.error = action.payload;
       });

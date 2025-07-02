@@ -36,9 +36,9 @@ bookingRoute.post(
   bookingController.assignStaff
 );
 
-bookingRoute.post("cancel/:id", bookingController.cancelBooking);
+bookingRoute.post("/cancel/:id", bookingController.cancelBooking);
 
-bookingRoute.post("deletểview/:id", bookingController.deleteReview);
+bookingRoute.post("/deleteReview/:id", bookingController.deleteReview);
 
 bookingRoute.post(
   "/:id/review",

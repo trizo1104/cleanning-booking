@@ -12,7 +12,7 @@ serviceRouter.get(
 serviceRouter.get(
   "/:id",
   middleware.protectRoute,
-  middleware.userOnly,
+  // middleware.userOnly,
   servicesController.getServiceDetail
 );
 
@@ -24,14 +24,14 @@ serviceRouter.post(
 );
 
 serviceRouter.post(
-  "/update-service",
+  "/update-service/:id",
   middleware.protectRoute,
   middleware.adminOnly,
   servicesController.updateService
 );
 
 serviceRouter.post(
-  "/delete-service",
+  "/delete-service/:id",
   middleware.protectRoute,
   middleware.adminOnly,
   servicesController.deleteService

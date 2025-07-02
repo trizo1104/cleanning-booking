@@ -14,6 +14,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Link from "next/link";
 import { getAllReview } from "@/slices/bookingSlice";
+import { formatDateTime } from "@/lib/format";
 
 const ServiceDetail = () => {
   const params = useParams();
@@ -23,8 +24,6 @@ const ServiceDetail = () => {
   const { service, isLoading } = useSelector((state: any) => state.service);
   const { products } = useSelector((state: any) => state.product);
   const { review } = useSelector((state: any) => state.booking);
-
-  console.log(review);
 
   useEffect(() => {
     if (id) {
@@ -76,45 +75,47 @@ const ServiceDetail = () => {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 ">
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-12 animate-fade-in-left">
-          Sản Phẩm Có Thể Hữu Ích Cho Bạn
-        </h2>
-        <div className="relative">
-          <Slider {...settings} className="w-full">
-            {products.map((p: Product, index: number) => (
-              <div
-                key={index}
-                className="px-3 py-4 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 transform transition-all duration-500 hover:scale-105 animate-fade-in-up"
-                style={{ animationDelay: `${index * 200}ms` }}
-              >
-                <div className="group bg-white cursor-pointer p-6 rounded-2xl shadow-inner hover:shadow-2xl  hover:bg-gold-50 transition-all duration-300 overflow-hidden text-center h-full flex flex-col justify-between">
-                  <div className="flex-grow">
-                    <div className="relative w-full h-48 mb-6 overflow-hidden rounded-xl">
-                      <Image
-                        src="/assets/bg.png"
-                        alt={p.name}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-110"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      />
+      {products.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 ">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-12 animate-fade-in-left">
+            Sản Phẩm Có Thể Hữu Ích Cho Bạn
+          </h2>
+          <div className="relative">
+            <Slider {...settings} className="w-full">
+              {products.map((p: Product, index: number) => (
+                <div
+                  key={index}
+                  className="px-3 py-4 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 transform transition-all duration-500 hover:scale-105 animate-fade-in-up"
+                  style={{ animationDelay: `${index * 200}ms` }}
+                >
+                  <div className="group bg-white cursor-pointer p-6 rounded-2xl shadow-inner hover:shadow-2xl  hover:bg-gold-50 transition-all duration-300 overflow-hidden text-center h-full flex flex-col justify-between">
+                    <div className="flex-grow">
+                      <div className="relative w-full h-48 mb-6 overflow-hidden rounded-xl">
+                        <Image
+                          src="/assets/bg.png"
+                          alt={p.name}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-110"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        />
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-bold mb-4 text-navy-900 line-clamp-1 group-hover:text-navy-700 transition-colors">
+                        {p.name}
+                      </h3>
+                      <p className="text-gray-600 text-base sm:text-lg line-clamp-3 leading-relaxed">
+                        {p.description}
+                      </p>
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-bold mb-4 text-navy-900 line-clamp-1 group-hover:text-navy-700 transition-colors">
-                      {p.name}
-                    </h3>
-                    <p className="text-gray-600 text-base sm:text-lg line-clamp-3 leading-relaxed">
-                      {p.description}
-                    </p>
+                    <button className="mt-6 w-full bg-gradient-to-r from-blue-300 to-blue-500 text-white px-4 py-2 rounded-full font-semibold text-sm sm:text-base hover:from-navy-700 hover:to-navy-800 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1">
+                      Xem Chi Tiết
+                    </button>
                   </div>
-                  <button className="mt-6 w-full bg-gradient-to-r from-blue-300 to-blue-500 text-white px-4 py-2 rounded-full font-semibold text-sm sm:text-base hover:from-navy-700 hover:to-navy-800 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1">
-                    Xem Chi Tiết
-                  </button>
                 </div>
-              </div>
-            ))}
-          </Slider>
-        </div>
-      </section>
+              ))}
+            </Slider>
+          </div>
+        </section>
+      )}
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
@@ -243,9 +244,14 @@ const ServiceDetail = () => {
                     <p className="text-gray-700 italic mb-4">
                       {feedback?.comment}
                     </p>
-                    <p className="text-blue-500 font-semibold">
-                      {feedback?.user.name}
-                    </p>
+                    <div className="flex justify-between">
+                      <p className="text-blue-500 font-semibold">
+                        {feedback?.user.name}
+                      </p>
+                      <p className="text-gray-400 font-semibold">
+                        {formatDateTime(feedback?.createdAt)}
+                      </p>
+                    </div>
                   </div>
                 ))
               ) : (
