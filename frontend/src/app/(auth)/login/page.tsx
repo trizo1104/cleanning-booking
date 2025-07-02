@@ -70,7 +70,7 @@ function Login() {
               <div className="relative">
                 <input
                   type="email"
-                  className={`input input-bordered w-full`}
+                  className={`input input-bordered w-full p-2`}
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) =>
@@ -87,7 +87,7 @@ function Login() {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`input input-bordered w-full `}
+                  className={`input input-bordered w-full p-2`}
                   placeholder="∗∗∗∗∗∗∗∗∗∗∗"
                   value={formData.password}
                   onChange={(e) =>

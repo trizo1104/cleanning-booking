@@ -9,12 +9,14 @@ import {
 
 interface IEmployee {
   assBookings: IAssignBookings[];
+  pendingBookings: IAssignBookings[];
   isLoading: boolean;
   error: string | null;
 }
 
 const initialState: IEmployee = {
   assBookings: [],
+  pendingBookings: [],
   isLoading: false,
   error: null,
 };
@@ -24,6 +26,20 @@ export const getAssBookings = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const res = await axiosInstance.get(AssBookingsgAPI);
+      return res.data;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to fetch products"
+      );
+    }
+  }
+);
+
+export const getPendingBookings = createAsyncThunk(
+  "employee/getPendingBookings",
+  async (_, thunkAPI) => {
+    try {
+      const res = await axiosInstance.get("/booking/pending");
       return res.data;
     } catch (err: any) {
       return thunkAPI.rejectWithValue(
@@ -68,6 +84,26 @@ export const addStaffNote = createAsyncThunk(
   async (payload: { id: string; note: string }, thunkAPI) => {
     try {
       await axiosInstance.post(addStaffNoteAPI(payload.id), payload.note);
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to fetch products"
+      );
+    }
+  }
+);
+
+export const acceptBooking = createAsyncThunk(
+  "employee/acceptBooking",
+  async (params: any, thunkAPI) => {
+    try {
+      const res = await axiosInstance.post(
+        `/booking/${params.bookingId}/assign`,
+        {
+          employeeId: params?.employeeId,
+        }
+      );
+
+      return res.data;
     } catch (err: any) {
       return thunkAPI.rejectWithValue(
         err.response?.data?.message || "Failed to fetch products"
@@ -148,7 +184,14 @@ const EmployeeSlice = createSlice({
       .addCase(addStaffNote.rejected, (state, action: PayloadAction<any>) => {
         state.isLoading = false;
         state.error = action.payload;
-      });
+      })
+      // get Pending
+      .addCase(getPendingBookings.fulfilled, (state, action) => {
+        state.pendingBookings = action.payload;
+      })
+      .addCase(acceptBooking.fulfilled, (state, action) => {
+        state.pendingBookings = state.pendingBookings.filter((booking) => booking._id !== action.payload.booking._id)
+      })
   },
 });
 

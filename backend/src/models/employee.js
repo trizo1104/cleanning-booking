@@ -16,6 +16,11 @@ const employeeSchema = new mongoose.Schema(
       enum: ["active", "inactive"],
       default: "active",
     },
+    assignedBookings: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Booking",
+      default: [],
+    },
   },
   { timestamps: true }
 );

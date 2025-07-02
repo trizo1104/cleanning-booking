@@ -23,6 +23,12 @@ bookingRoute.get(
 );
 
 bookingRoute.get(
+  "/pending",
+  middleware.protectRoute,
+  bookingController.getAllPendingBookings
+);
+
+bookingRoute.get(
   "/allReviews",
   middleware.protectRoute,
   middleware.adminOnly,
@@ -32,7 +38,6 @@ bookingRoute.get(
 bookingRoute.post(
   "/:id/assign",
   middleware.protectRoute,
-  middleware.adminOnly,
   bookingController.assignStaff
 );
 

@@ -9,7 +9,7 @@ import {
 } from "@/app/Api/booking";
 
 interface IbookingState {
-  booking: IBooking[];
+  bookings: IBooking[];
   mess: string;
   review: IGetReview[];
   isLoading: boolean;
@@ -17,12 +17,26 @@ interface IbookingState {
 }
 
 const initialState: IbookingState = {
-  booking: [],
+  bookings: [],
   mess: "",
   review: [],
   isLoading: false,
   error: null,
 };
+
+export const getAllBookings = createAsyncThunk(
+  "booking/getAllBookings",
+  async (_, thunkAPI) => {
+    try {
+      const res = await axiosInstance.get("/booking/all");
+      return res.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch products"
+      );
+    }
+  }
+);
 
 export const createBooking = createAsyncThunk(
   "booking/createBooking",
@@ -88,6 +102,26 @@ export const deleteReview = createAsyncThunk(
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to fetch products"
+      );
+    }
+  }
+);
+
+export const assignStaff = createAsyncThunk(
+  "booking/assignStaff",
+  async (params: any, thunkAPI) => {
+    try {
+      const res = await axiosInstance.post(
+        `/booking/${params.bookingId}/assign`,
+        {
+          employeeId: params?.employeeId,
+        }
+      );
+
+      return res.data;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to fetch products"
       );
     }
   }
@@ -172,7 +206,28 @@ const bookingSlice = createSlice({
       .addCase(deleteReview.rejected, (state, action: PayloadAction<any>) => {
         state.isLoading = false;
         state.error = action.payload;
-      });
+      })
+
+      // AssignStaff
+      .addCase(assignStaff.fulfilled, (state, action: PayloadAction<any>) => {
+        console.log(action.payload.booking);
+
+        const targetBooking = state.bookings.find(
+          (booking) => booking._id === action.payload.booking._id
+        );
+
+        if (targetBooking) {
+          targetBooking.status = "assigned";
+        }
+      })
+
+      .addCase(
+        getAllBookings.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          console.log(action.payload);
+          state.bookings = action.payload;
+        }
+      );
   },
 });
 

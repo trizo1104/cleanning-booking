@@ -81,14 +81,17 @@ interface Product {
 }
 
 interface IBooking {
+  _id: Key | null | undefined;
+  user: any;
   id: string;
-  service: string;
+  service: any;
   selectedOptionType: string;
   selectedPrice: string;
   date: string;
   time: string;
   address: string;
   note: string;
+  status: string;
 }
 
 interface IReivew {
