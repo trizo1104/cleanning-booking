@@ -13,6 +13,7 @@ const getAllEmployees = async (req, res) => {
 const getAssignedBookings = async (req, res) => {
   try {
     const staffId = req.user.id;
+    console.log(staffId)
     const bookings = await Booking.find({ assignedStaff: staffId })
       .populate("user", "name phone")
       .populate("service", "name")
@@ -27,15 +28,15 @@ const getAssignedBookings = async (req, res) => {
 
 const updateBookingStatus = async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
 
   try {
     const booking = await Booking.findById(id);
+    booking.status = "done"
     // if (!booking || booking.assignedStaff.toString() !== req.user.id) {
     //   return res.status(403).json({ message: "Not authorized" });
     // }
 
-    booking.status = status;
+    // booking.status = status;
     await booking.save();
 
     res.json({ message: "Booking status updated", booking });

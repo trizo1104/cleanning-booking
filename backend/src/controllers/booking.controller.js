@@ -1,4 +1,5 @@
 const Booking = require("../models/booking");
+const Employee = require("../models/employee");
 const Review = require("../models/reivew");
 
 const createBooking = async (req, res) => {
@@ -50,11 +51,29 @@ const getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()
       .populate("user", "name email")
-      .populate("employee", "name email")
+      .populate("service", "name")
+      // .populate("employee", "name email")
       .sort({ createdAt: -1 });
+    // console.log(bookings)
     res.json(bookings);
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: "Failed to fetch all bookings" });
+  }
+};
+
+
+const getAllPendingBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find({ status: "pending" })
+      .populate("user", "name email")
+      .populate("service", "name")
+      .sort({ createdAt: -1 });
+
+    res.json(bookings);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch pending bookings" });
   }
 };
 
@@ -70,10 +89,15 @@ const assignStaff = async (req, res) => {
     if (!employee || employee.role !== "staff")
       return res.status(404).json({ message: "Staff not found" });
 
-    booking.employee = employeeId;
+    booking.assignedStaff = employeeId;
     booking.status = "assigned";
 
+
     await booking.save();
+    console.log(booking)
+
+
+    console.log(employee.name)
 
     if (!employee.assignedBookings.includes(booking._id)) {
       employee.assignedBookings.push(booking._id);
@@ -186,4 +210,5 @@ module.exports = {
   cancelBooking,
   getAllReviews,
   deleteReview,
+  getAllPendingBookings
 };
