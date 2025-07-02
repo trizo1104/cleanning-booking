@@ -7,21 +7,26 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/store/store";
 import { getAssBookings, updateBookingStatus } from "@/slices/employeeSlice";
+import { fetchCurrentUser } from "@/slices/authSlice";
 
 export default function StaffDashboard() {
   const [bookings, setBookings] = useState<IAssignBookings[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [note, setNote] = useState("");
+  const dispatch = useDispatch<AppDispatch>();
 
-  const dishpatch = useDispatch<AppDispatch>();
   const { assBookings } = useSelector((state: any) => state.employee);
 
   useEffect(() => {
-    dishpatch(getAssBookings());
+    dispatch(fetchCurrentUser());
+  }, []);
+
+  useEffect(() => {
+    dispatch(getAssBookings());
   }, []);
 
   const updateStatus = async (id: string, status: string) => {
-    dishpatch(updateBookingStatus({ id, status }));
+    dispatch(updateBookingStatus({ id, status }));
   };
 
   const saveNote = async () => {
