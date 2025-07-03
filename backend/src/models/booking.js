@@ -20,6 +20,7 @@ const bookingSchema = new mongoose.Schema({
   selectedOptionType: { type: String },
   assignedStaff: { type: mongoose.Schema.Types.ObjectId, ref: "Employee" },
   selectedPrice: { type: Number },
+  transactionId: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 

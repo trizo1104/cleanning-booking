@@ -68,8 +68,6 @@ const BookingPage = () => {
     }
   };
 
-  console.log(service);
-
   return (
     <section className="min-h-screen bg-gradient-to-tr from-blue-100 to-white px-6 py-16 flex items-center justify-center">
       <motion.div

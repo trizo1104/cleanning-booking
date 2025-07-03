@@ -7,8 +7,10 @@ const bookingRoute = require("./routes/booking.route");
 const employeeRouter = require("./routes/emoloyee.route");
 const serviceRouter = require("./routes/service.route");
 const productRoutes = require("./routes/product.route");
+const paymentZalo = require("./routes/payment.route");
 
 const cookieParser = require("cookie-parser");
+const getNgrokUrl = require("./lib/getNgrokUrl");
 
 const app = express();
 
@@ -28,6 +30,7 @@ app.use("/api/booking", bookingRoute);
 app.use("/api/employee", employeeRouter);
 app.use("/api/service", serviceRouter);
 app.use("/api/products", productRoutes);
+app.use("/api/payment-zalo", paymentZalo);
 
 connectDataBase();
 
@@ -35,6 +38,7 @@ app.use((req, res) => {
   res.status(404).json({ message: `Not found ${req.originalUrl}` });
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
+  await getNgrokUrl();
   console.log("server is running on port: " + port);
 });
