@@ -1,5 +1,5 @@
 "use client";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -22,7 +22,7 @@ export default function ProductList() {
   useEffect(() => {
     dispatch(fetchAllProducts());
     dispatch(getAllService());
-  }, []);
+  }, [dispatch]);
 
   const filteredProducts =
     filter === "All"

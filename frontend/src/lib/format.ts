@@ -7,7 +7,9 @@ export const formatVND = (value: number): string => {
 
 export const convert12hTo24h = (time12h: string) => {
   const [time, modifier] = time12h.split(" ");
-  let [hours, minutes] = time.split(":").map(Number);
+  const [hoursStr, minutesStr] = time.split(":");
+  let hours = Number(hoursStr);
+  const minutes = Number(minutesStr);
 
   if (modifier === "PM" && hours < 12) {
     hours += 12;
@@ -20,6 +22,8 @@ export const convert12hTo24h = (time12h: string) => {
     .toString()
     .padStart(2, "0")}`;
 };
+
+
 
 export function formatDateTime(isoString: string): string {
   const date = new Date(isoString);

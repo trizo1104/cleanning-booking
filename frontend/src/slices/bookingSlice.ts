@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "@/lib/axios";
 import {
@@ -40,7 +41,7 @@ export const getAllBookings = createAsyncThunk(
 
 export const createBooking = createAsyncThunk(
   "booking/createBooking",
-  async (data: IBooking, thunkAPI) => {
+  async (data : any, thunkAPI) => {
     try {
       const res = await axiosInstance.post(createBookingAPI, data);
       return res.data;

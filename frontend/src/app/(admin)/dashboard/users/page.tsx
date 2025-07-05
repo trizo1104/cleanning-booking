@@ -39,7 +39,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     dispatch(getAllUser());
-  }, []);
+  }, [dispatch]);
 
   const handleRegister = async (formData: {
     name: string;

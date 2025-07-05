@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Slider from "react-slick";
 import {
   ArrowLeftCircle,
@@ -30,7 +31,7 @@ export default function Home() {
 
   useEffect(() => {
     dispatch(getAllService());
-  }, []);
+  }, [dispatch]);
 
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 

@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
-import { BadgeCheck, LoaderCircle } from "lucide-react";
-import axiosInstance from "@/lib/axios";
+import {  LoaderCircle } from "lucide-react";
 import {
   Dialog,
   DialogTitle,
@@ -58,7 +56,7 @@ export default function AdminBookingPage() {
     dispatch(getAllBookings()).then(() => {
       setLoading(false)
     })
-  }, []);
+  }, [dispatch]);
 
   const updateStatus = async (id: string, status: string) => {
     // try {
@@ -70,8 +68,6 @@ export default function AdminBookingPage() {
     //   console.error("Failed to update status", err);
     // }
   };
-
-  console.log(bookings);
 
   return (
     <section className="p-6">
