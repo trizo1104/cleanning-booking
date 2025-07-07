@@ -1,35 +1,25 @@
 "use client";
 import { notFound, useParams } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
+import { getDetailBlog } from "@/slices/blogSlice";
 
-interface Blog {
-  _id: string;
-  title: string;
-  content: string;
-  createdAt: string;
-  image?: string;
-}
-
-async function getBlog(id: string) {
-  try {
-    const res = await fetch(`http://localhost:8080/api/blogs/${id}`, {
-      cache: "no-store",
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data;
-  } catch (error) {
-    return null;
-  }
-}
-
-export default async function BlogDetailPage() {
+export default function BlogDetailPage() {
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
-  if (!id) return notFound();
-  const blog = await getBlog(id);
+  const dispatch = useDispatch<AppDispatch>();
+  const { blog } = useSelector((state: RootState) => state.blog);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getDetailBlog(id));
+    } else {
+      return notFound;
+    }
+  }, []);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">

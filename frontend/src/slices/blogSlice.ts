@@ -3,11 +3,13 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 interface Iblogs {
   blogs: IBlog[];
+  blog: IBlog | null;
   isLoading: boolean;
 }
 
 const initialState: Iblogs = {
   blogs: [],
+  blog: null,
   isLoading: false,
 };
 
@@ -53,6 +55,20 @@ export const deleteBlog = createAsyncThunk(
   }
 );
 
+export const getDetailBlog = createAsyncThunk(
+  "blog/getDetail",
+  async (id: string, thunkAPI) => {
+    try {
+      const res = await axiosInstance.get(`/blogs/${id}`);
+      return res.data; // Trả về dữ liệu blog
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch blog detail"
+      );
+    }
+  }
+);
+
 const blogSlice = createSlice({
   name: "blog",
   initialState,
@@ -71,6 +87,16 @@ const blogSlice = createSlice({
       })
       .addCase(deleteBlog.fulfilled, (state, action) => {
         state.blogs = state.blogs.filter((b) => b._id !== action.meta.arg);
+      })
+      .addCase(getDetailBlog.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getDetailBlog.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.blog = action.payload;
+      })
+      .addCase(getDetailBlog.rejected, (state, action) => {
+        state.isLoading = false;
       });
   },
 });
