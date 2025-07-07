@@ -118,11 +118,12 @@ interface IGetBooking {
   time: string;
   address: string;
   note?: string;
-  status: "pending" | "assigned" | "done" | "cancelled";
+  status: "pending" | "assigned" | "done" | "cancelled" | "paid";
   rating?: number;
   review?: string;
   selectedOptionType: string;
   selectedPrice: string;
+  transactionId: string;
 }
 
 interface IAssignBookings extends IGetBooking {
@@ -130,4 +131,21 @@ interface IAssignBookings extends IGetBooking {
     name: string;
     phone: string;
   };
+}
+
+interface IBookingPayload {
+  service: string;
+  selectedOptionType: string;
+  selectedPrice: string;
+  date: string;
+  time: string;
+  address: string;
+  note: string;
+}
+
+interface IBlog {
+  _id: string;
+  title: string;
+  content: string;
+  createdAt: string;
 }

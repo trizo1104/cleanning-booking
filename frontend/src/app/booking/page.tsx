@@ -3,22 +3,31 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { notFound, useParams, useRouter } from "next/navigation";
-import { Calendar, Clock, MapPin, Layers, Notebook } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Layers,
+  Notebook,
+  Receipt,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/store/store";
-import { getAllService, getDetailService } from "@/slices/serviceSlice";
+import { getAllService } from "@/slices/serviceSlice";
+import { convert12hTo24h, formatVND } from "@/lib/format";
+import { createBooking } from "@/slices/bookingSlice";
 
 const BookingPage = () => {
   const router = useRouter();
 
-  const { services, service } = useSelector((state: any) => state.service);
+  const { services } = useSelector((state: any) => state.service);
   const dispatch = useDispatch<AppDispatch>();
 
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<IBookingPayload>({
     service: "",
     selectedOptionType: "",
     selectedPrice: "",
@@ -28,46 +37,59 @@ const BookingPage = () => {
     note: "",
   });
 
+  console.log(formData);
+
+  console.log(services);
+
   useEffect(() => {
-    if (id) {
-      dispatch(getDetailService(id));
-    } else if (!id) {
-      dispatch(getAllService());
-    } else {
-      return notFound();
-    }
-  }, [id, dispatch]);
+    dispatch(getAllService());
+  }, [dispatch]);
 
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    const { name, value } = e.target;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    if (name === "selectedOptionType") {
+      const selectedService = services.find(
+        (svc: Service) => svc._id === formData.service
+      );
+      const selectedOption = selectedService?.serviceOptions?.find(
+        (opt: IServiceOption) => opt.optionType === value
+      );
 
-    try {
-      const res = await fetch("", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      setFormData({
+        ...formData,
+        selectedOptionType: value,
+        selectedPrice: selectedOption?.priceFrom?.toString() || "",
       });
-
-      if (res.ok) {
-        toast.success("Đặt lịch thành công!");
-        router.push("/my-bookings");
-      } else {
-        const errorData = await res.json();
-        toast.error(errorData.message || "Đặt lịch thất bại!");
-      }
-    } catch (err) {
-      toast.error("Lỗi kết nối máy chủ!");
+    } else {
+      setFormData({ ...formData, [name]: value });
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const payload = {
+        ...formData,
+        time: convert12hTo24h(formData.time),
+      };
+      const resultAction = await dispatch(createBooking(payload));
+
+      if (createBooking.fulfilled.match(resultAction)) {
+        toast.success("Đặt lịch thành công!");
+        router.push("/my-bookings");
+      } else if (createBooking.rejected.match(resultAction)) {
+        toast.error(`Booking failed: ${resultAction.payload}`);
+      }
+    } catch (err) {
+      toast.error("An unexpected error occurred");
+    }
+  };
   return (
     <section className="min-h-screen bg-gradient-to-tr from-blue-100 to-white px-6 py-16 flex items-center justify-center">
       <motion.div
@@ -129,13 +151,34 @@ const BookingPage = () => {
                 >
                   <option value="">-- Chọn dịch vụ --</option>
                   {services
-                    ?.find((s: Service) => s.name === formData.service)
+                    ?.find((s: Service) => s._id === formData.service)
                     ?.serviceOptions?.map((s: IServiceOption) => (
-                      <option key={s._id} value={s._id}>
+                      <option key={s._id} value={s.optionType}>
                         {s.optionType} - {s.priceFrom}
                       </option>
                     ))}
                 </select>
+              </div>
+            </div>
+          )}
+
+          {formData.selectedPrice && (
+            <div>
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
+                Giá dịch vụ
+              </label>
+              <div className="relative">
+                <Receipt
+                  className="absolute left-3 top-3 text-gray-400"
+                  size={20}
+                />
+                <input
+                  type="text"
+                  name="selectedPrice"
+                  value={formatVND(Number(formData.selectedPrice))}
+                  readOnly
+                  className="w-full pl-10 pr-4 py-2 bg-gray-100 border border-gray-300 rounded-xl text-gray-700 cursor-not-allowed"
+                />
               </div>
             </div>
           )}

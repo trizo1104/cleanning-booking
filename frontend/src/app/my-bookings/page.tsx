@@ -3,41 +3,67 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Loader2, Star } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store/store";
-import { setUser } from "@/slices/authSlice";
 import { formatVND } from "@/lib/format";
 import Link from "next/link";
+import axiosInstance from "@/lib/axios";
+import { toast } from "react-toastify";
+import { cancelBooking, getMyBookings } from "@/slices/bookingSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
+import { useConfirmDialog } from "@/components/useConfirmDialog";
 
 export default function MyBookingsPage() {
-  const [bookings, setBookings] = useState<IGetBooking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { getBookings, isLoading } = useSelector(
+    (state: RootState) => state.booking
+  );
+  const { confirm, ConfirmDialog } = useConfirmDialog();
 
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const res = await fetch(
-          "http://localhost:8080/api/booking/my-bookings",
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-
-        const data = await res.json();
-        setBookings(data);
-      } catch (err) {
-        console.error("Failed to fetch bookings", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBookings();
+    dispatch(getMyBookings());
   }, []);
+
+  const handlePayment = async (booking: IGetBooking) => {
+    try {
+      console.log(booking);
+      const res = await axiosInstance.post(
+        "http://localhost:8080/api/payment-zalo/pay-booking",
+        {
+          amount: booking?.selectedPrice,
+          items: [booking],
+          bookingId: booking?._id,
+        }
+      );
+      if (res.data?.order_url) {
+        window.location.href = res.data.order_url;
+      }
+    } catch (err) {
+      toast.error("Đã xảy ra lỗi khi đặt lịch. Vui lòng thử lại sau.");
+    }
+  };
+
+  const handleCancelBooking = async (id: string) => {
+    confirm({
+      title: "Cancel Booking",
+      message: "Are you sure you want to cancel this booking?",
+      onConfirm: async () => {
+        try {
+          const result = await dispatch(cancelBooking(id));
+          if (cancelBooking.fulfilled.match(result)) {
+            toast.success("Hủy lịch thành công!");
+          } else {
+            toast.error(`Hủy lịch thất bại: ${result.payload}`);
+          }
+        } catch (err) {
+          toast.error("Có lỗi xảy ra khi hủy!");
+        }
+      },
+    });
+  };
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-blue-50 to-white py-16 px-4 sm:px-6 lg:px-8">
+      <ConfirmDialog />
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -48,17 +74,17 @@ export default function MyBookingsPage() {
           Lịch Đặt Dịch Vụ Của Bạn
         </motion.h2>
 
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center items-center py-20">
             <Loader2 className="animate-spin text-blue-400" size={36} />
           </div>
-        ) : bookings.length === 0 ? (
+        ) : getBookings.length === 0 ? (
           <p className="text-center text-gray-500 text-lg">
             Chưa có lịch đặt nào.
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {bookings?.map((booking, index) => (
+            {getBookings?.map((booking, index) => (
               <motion.div
                 key={booking._id}
                 initial={{ opacity: 0, y: 20 }}
@@ -123,22 +149,36 @@ export default function MyBookingsPage() {
 
                 <div className="text-right">
                   {booking.status === "pending" && booking.rating == null && (
-                    <button className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
+                    <button
+                      onClick={() => handleCancelBooking(booking._id)}
+                      className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+                    >
                       Hủy dịch vụ
                     </button>
                   )}
                 </div>
 
                 <div className="text-right">
-                  {booking.status === "done" && booking.rating == null && (
-                    <Link
-                      href={`/my-bookings/${booking._id}/review`}
-                      className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
-                    >
-                      <Star size={18} />
-                      Đánh giá dịch vụ
-                    </Link>
-                  )}
+                  {booking.status === "done" ||
+                    (booking.status === "paid" && booking.rating == null && (
+                      <div className="flex gap-3 float-end">
+                        <Link
+                          href={`/my-bookings/${booking._id}/review`}
+                          className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
+                        >
+                          <Star size={18} />
+                          Đánh giá dịch vụ
+                        </Link>{" "}
+                        {booking.status !== "paid" && (
+                          <button
+                            onClick={() => handlePayment(booking)}
+                            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
+                          >
+                            Thanh toán
+                          </button>
+                        )}
+                      </div>
+                    ))}
                 </div>
               </motion.div>
             ))}

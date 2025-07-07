@@ -8,6 +8,7 @@ const employeeRouter = require("./routes/emoloyee.route");
 const serviceRouter = require("./routes/service.route");
 const productRoutes = require("./routes/product.route");
 const paymentZalo = require("./routes/payment.route");
+const blogsRoute = require("./routes/blogs.route");
 
 const cookieParser = require("cookie-parser");
 const getNgrokUrl = require("./lib/getNgrokUrl");
@@ -31,6 +32,7 @@ app.use("/api/employee", employeeRouter);
 app.use("/api/service", serviceRouter);
 app.use("/api/products", productRoutes);
 app.use("/api/payment-zalo", paymentZalo);
+app.use("/api/blogs", blogsRoute);
 
 connectDataBase();
 

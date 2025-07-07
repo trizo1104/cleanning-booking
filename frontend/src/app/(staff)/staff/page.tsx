@@ -14,6 +14,7 @@ import {
 } from "@/slices/employeeSlice";
 import { assignStaff } from "@/slices/bookingSlice";
 import { fetchCurrentUser } from "@/slices/authSlice";
+import { toast } from "react-toastify";
 
 export default function StaffDashboard() {
   const [bookings, setBookings] = useState<IAssignBookings[]>([]);
@@ -27,27 +28,26 @@ export default function StaffDashboard() {
   );
   const { user } = useSelector((state: any) => state.auth);
 
+
+  const handleAssignStaff = async (bookingId: string) => {
+    const resultAction = await dispatch(
+      acceptBooking({ bookingId, employeeId: user?.id })
+    );
+    if (acceptBooking.fulfilled.match(resultAction)) {
+      toast.success("Accept success");
+    }
+  };
+
+
   useEffect(() => {
     dispatch(fetchCurrentUser());
     dispatch(getAssBookings());
   }, [dispatch]);
 
   const updateStatus = async (id: string, status: string) => {
-    dispatch(updateBookingStatus({ id, status }));
-  };
-
-  const handleAcceptBooking = (bookingId: string, staffId: string) => {
-    dishpatch(acceptBooking({ bookingId: bookingId, employeeId: staffId }));
-  };
-
-  const saveNote = async () => {
-    if (!selectedBooking) return;
-    try {
-      await axios.put(`/api/staff/bookings/${selectedBooking}/note`, { note });
-      setNote("");
-      alert("Note saved");
-    } catch (err) {
-      console.error("Save note failed", err);
+    const resultAction = await dispatch(updateBookingStatus({ id, status }));
+    if (updateBookingStatus.fulfilled.match(resultAction)) {
+      toast.success("Mark success");
     }
   };
 
@@ -63,136 +63,128 @@ export default function StaffDashboard() {
       </motion.h1>
 
       {/* Tabs */}
-      <div className="mb-6 flex justify-center gap-4">
-        <button
+      <div className="mb-6 flex flex-wrap justify-center gap-4">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => {
             setSelectedBooking(null);
             dishpatch(getAssBookings());
           }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm bg-green-100 text-green-800 hover:bg-green-200 transition"
+          className="flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-green-300 to-green-500 text-white shadow-md hover:shadow-lg transition"
         >
-          <CalendarDays size={16} /> Today
-        </button>
-        <button
+          <CalendarDays size={18} /> <span>Today</span>
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => {
             setSelectedBooking("pending");
             dishpatch(getPendingBookings());
           }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm bg-blue-100 text-blue-800 hover:bg-blue-200 transition"
+          className="flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-blue-300 to-blue-500 text-white shadow-md hover:shadow-lg transition"
         >
-          <ClipboardCheck size={16} /> Pending
-        </button>
-        <button
-          onClick={() => setSelectedBooking("note")}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition"
-        >
-          <StickyNote size={16} /> Notes
-        </button>
+          <ClipboardCheck size={18} /> <span>Pending</span>
+        </motion.button>
       </div>
 
       {/* Today Bookings */}
-      {selectedBooking === null && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {assBookings
-            .filter((b: any) => b.status !== "done")
-            .map((booking: any, i: number) => (
-              <motion.div
-                key={booking._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white shadow-md hover:shadow-lg transition rounded-2xl p-5"
-              >
-                <p className="font-semibold text-green-700">
-                  {booking.service?.name}
-                </p>
-                <p>
-                  <strong>Time:</strong> {booking.date} at {booking.time}
-                </p>
-                <p>
-                  <strong>Address:</strong> {booking.address}
-                </p>
-                <div className="flex gap-2 mt-4">
-                  <button
-                    onClick={() => updateStatus(booking._id, "done")}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition"
-                  >
-                    Mark Done
-                  </button>
-                  <button
-                    onClick={() => setSelectedBooking(booking._id)}
-                    className="bg-gray-100 hover:bg-gray-200 border border-gray-300 px-4 py-2 rounded-lg text-sm"
-                  >
-                    Add Note
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-        </div>
-      )}
-
-      {/* Notes Form */}
-      {selectedBooking &&
-        selectedBooking !== "pending" &&
-        selectedBooking !== "note" && (
-          <div className="max-w-xl mx-auto bg-white p-6 mt-6 rounded-xl shadow">
-            <textarea
-              placeholder="Write your note..."
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="w-full p-3 border rounded-lg focus:outline-green-500 min-h-[120px]"
-            />
-            <div className="flex justify-end mt-4">
-              <button
-                onClick={saveNote}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm"
-              >
-                Save Note
-              </button>
-            </div>
+      {selectedBooking === null &&
+        (assBookings?.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {assBookings
+              .filter((b: any) => b.status !== "done")
+              .map((booking: any, i: number) => (
+                <motion.div
+                  key={booking._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-white shadow-lg hover:shadow-xl transition rounded-3xl p-6 border border-gray-100"
+                >
+                  <p className="text-xl font-semibold text-green-700 mb-2">
+                    {booking.service?.name}
+                  </p>
+                  <div className="text-gray-600 space-y-1 text-sm">
+                    <p>
+                      <strong className="text-gray-800">Time:</strong>{" "}
+                      {booking.date} at {booking.time}
+                    </p>
+                    <p>
+                      <strong className="text-gray-800">Address:</strong>{" "}
+                      {booking.address}
+                    </p>
+                    {booking.note && (
+                      <p>
+                        <strong className="text-red-800">Note:</strong>{" "}
+                        {booking.note}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex float-end mt-5">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      onClick={() => updateStatus(booking._id, "done")}
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full text-sm shadow-md transition"
+                    >
+                      Mark Done
+                    </motion.button>
+                  </div>
+                </motion.div>
+              ))}
           </div>
-        )}
+        ) : (
+          <div className="text-center text-black-500 text-sm">
+            Hiện tại không có lịch
+          </div>
+        ))}
 
       {/* Placeholder Notes tab or Pending */}
-      {(selectedBooking === "note" || selectedBooking === "pending") && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {pendingBookings
-            .filter((b: any) => b.status !== "done")
-            .map((booking: any, i: number) => (
-              <motion.div
-                key={booking._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white shadow-md hover:shadow-lg transition rounded-2xl p-5"
-              >
-                <p className="font-semibold text-green-700">
-                  {booking.service?.name}
-                </p>
-                <p>
-                  <strong>Time:</strong> {booking.date} at {booking.time}
-                </p>
-                <p>
-                  <strong>Address:</strong> {booking.address}
-                </p>
-                <div className="flex gap-2 mt-4">
-                  <button
-                    onClick={() => handleAcceptBooking(booking?._id, user?._id)}
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm transition"
-                  >
-                    Accept
-                  </button>
-                  <button
-                    onClick={() => setSelectedBooking(booking._id)}
-                    className="bg-gray-100 hover:bg-gray-200 border border-gray-300 px-4 py-2 rounded-lg text-sm"
-                  >
-                    Add Note
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-        </div>
-      )}
+      {selectedBooking === "pending" &&
+        (pendingBookings.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {pendingBookings
+              .filter((b: any) => b.status !== "done")
+              .map((booking: any, i: number) => (
+                <motion.div
+                  key={booking._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-white shadow-md hover:shadow-lg transition rounded-2xl p-5"
+                >
+                  <p className="font-semibold text-green-700">
+                    {booking.service?.name}
+                  </p>
+                  <p>
+                    <strong>Time:</strong> {booking.date} at {booking.time}
+                  </p>
+                  <p>
+                    <strong>Address:</strong> {booking.address}
+                  </p>
+                  {!booking.note && <br></br>}
+                  {booking.note && (
+                    <p>
+                      <strong className="text-red-800">Note:</strong>{" "}
+                      {booking.note}
+                    </p>
+                  )}
+                  <div className="flex float-end mt-4">
+                    <button
+                      onClick={() => handleAssignStaff(booking?._id)}
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white  rounded-full px-4 py-2 text-sm transition"
+                    >
+                      Accept
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+          </div>
+        ) : (
+          <div className="text-center text-black-500 text-sm">
+            Hiện tại không có lịch
+          </div>
+        ))}
     </section>
   );
 }

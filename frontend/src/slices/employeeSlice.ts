@@ -119,7 +119,7 @@ const EmployeeSlice = createSlice({
   reducers: {},
   extraReducers(builder) {
     builder
-      //  Get Assigned Bookings
+      // ✅ Get Assigned Bookings
       .addCase(getAssBookings.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -136,14 +136,48 @@ const EmployeeSlice = createSlice({
         state.error = action.payload;
       })
 
-      //  Update Booking Status
+      // ✅ Get Pending Bookings
+      .addCase(getPendingBookings.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(
+        getPendingBookings.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.isLoading = false;
+          state.pendingBookings = action.payload;
+        }
+      )
+      .addCase(
+        getPendingBookings.rejected,
+        (state, action: PayloadAction<any>) => {
+          state.isLoading = false;
+          state.error = action.payload;
+        }
+      )
+
+      // ✅ Accept Booking → remove from pending, add to assigned
+      .addCase(acceptBooking.fulfilled, (state, action: PayloadAction<any>) => {
+        const updatedBooking = action.payload.booking;
+        state.pendingBookings = state.pendingBookings.filter(
+          (booking) => booking._id !== updatedBooking._id
+        );
+        state.assBookings.push(updatedBooking);
+      })
+
+      // ✅ Update Booking Status (e.g. mark done)
       .addCase(updateBookingStatus.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(updateBookingStatus.fulfilled, (state) => {
+      .addCase(updateBookingStatus.fulfilled, (state, action: any) => {
         state.isLoading = false;
-        // Optional: update status in state.assBookings if needed
+        const { id, status } = action.meta.arg;
+
+        const index = state.assBookings.findIndex((b) => b._id === id);
+        if (index !== -1) {
+          state.assBookings[index].status = status;
+        }
       })
       .addCase(
         updateBookingStatus.rejected,
@@ -153,7 +187,26 @@ const EmployeeSlice = createSlice({
         }
       )
 
-      //  Get Bookings by Date
+      // ✅ Add Staff Note
+      .addCase(addStaffNote.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(addStaffNote.fulfilled, (state, action: any) => {
+        state.isLoading = false;
+        const { id, note } = action.meta.arg;
+
+        const index = state.assBookings.findIndex((b) => b._id === id);
+        if (index !== -1) {
+          state.assBookings[index].note = note;
+        }
+      })
+      .addCase(addStaffNote.rejected, (state, action: PayloadAction<any>) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+      // ✅ Get bookings by date → override assBookings
       .addCase(getBookingsByDate.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -171,28 +224,7 @@ const EmployeeSlice = createSlice({
           state.isLoading = false;
           state.error = action.payload;
         }
-      )
-
-      //  Add Staff Note
-      .addCase(addStaffNote.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(addStaffNote.fulfilled, (state) => {
-        state.isLoading = false;
-        // Optional: update note in state if needed
-      })
-      .addCase(addStaffNote.rejected, (state, action: PayloadAction<any>) => {
-        state.isLoading = false;
-        state.error = action.payload;
-      })
-      // get Pending
-      .addCase(getPendingBookings.fulfilled, (state, action) => {
-        state.pendingBookings = action.payload;
-      })
-      .addCase(acceptBooking.fulfilled, (state, action) => {
-        state.pendingBookings = state.pendingBookings.filter((booking) => booking._id !== action.payload.booking._id)
-      })
+      );
   },
 });
 

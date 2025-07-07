@@ -1,11 +1,7 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Slider from "react-slick";
-import {
-  ArrowLeftCircle,
-  ArrowRightCircle,
-  ChevronDownIcon,
-} from "lucide-react";
+import { ChevronDownIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/store/store";
 import { useEffect, useState } from "react";
@@ -17,21 +13,24 @@ import "slick-carousel/slick/slick-theme.css";
 import { faqs, steps, features, ImageURL } from "@/components/data";
 import { settingsHero, settings } from "@/components/carousel";
 import ProtectRoute from "@/components/ProtectRoute";
-
-// const createSlug = (title: string) =>
-//   title
-//     .toLowerCase()
-//     .replace(/ /g, "-")
-//     .replace(/[^a-z0-9-]/g, "");
+import { useRouter } from "next/navigation";
+import { getAllBlogs } from "@/slices/blogSlice";
 
 export default function Home() {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
   const { services } = useSelector((state: any) => state.service);
+  const { blogs } = useSelector((state: any) => state.blog);
 
   useEffect(() => {
     dispatch(getAllService());
+
+    dispatch(getAllBlogs());
+  
+
   }, [dispatch]);
+
 
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
@@ -69,7 +68,10 @@ export default function Home() {
               Transform your space with our expert cleaning solutions. Spotless
               results, every time!
             </p>
-            <button className="mt-6 bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg">
+            <button
+              onClick={() => router.push("/booking")}
+              className="mt-6 bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg"
+            >
               Book Now
             </button>
           </div>
@@ -111,7 +113,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section
+        {/* <section
           id="blog"
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 my-10"
         >
@@ -141,6 +143,50 @@ export default function Home() {
                       </p>
                       <Link
                         href={blog.link}
+                        className="text-blue-600 hover:underline font-medium text-sm"
+                      >
+                        Read More →
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </Slider>
+          </div>
+        </section> */}
+
+        <section
+          id="blog"
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 my-10"
+        >
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-12 animate-fade-in-left">
+            All the Amenities You Need
+          </h2>
+          <div className="relative">
+            <Slider {...settings}>
+              {blogs.map((blog: any) => (
+                <div key={blog._id} className="p-2">
+                  <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    {blog.image ? (
+                      <img
+                        src={`${blog.image}`}
+                        alt="Blog Image"
+                        className="w-full h-64 object-cover rounded-xl mb-8"
+                      />
+                    ) : (
+                      <div className="w-full h-56 bg-gray-200 flex items-center justify-center text-gray-500">
+                        No image
+                      </div>
+                    )}
+                    <div className="p-6">
+                      <h3 className="text-xl font-semibold text-gray-800 mb-2 line-clamp-2">
+                        {blog.title}
+                      </h3>
+                      <p className="text-gray-600 mb-4 text-sm line-clamp-2">
+                        {blog.content.replace(/<[^>]+>/g, "").slice(0, 100)}...
+                      </p>
+                      <Link
+                        href={`/blog/${blog._id}`}
                         className="text-blue-600 hover:underline font-medium text-sm"
                       >
                         Read More →

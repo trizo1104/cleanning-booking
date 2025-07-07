@@ -25,7 +25,7 @@ export default function AdminUsersPage() {
         try {
           const resultAction = await dispatch(deleteUser(id));
           if (deleteUser.fulfilled.match(resultAction)) {
-            toast.success(resultAction.payload);
+            toast.success(resultAction.payload.message);
             dispatch(getAllUser());
           } else if (deleteUser.rejected.match(resultAction)) {
             toast.error(`${resultAction.payload}`);
@@ -70,6 +70,8 @@ export default function AdminUsersPage() {
     }
   };
 
+  console.log(users);
+
   return (
     <section className="min-h-screen bg-white p-6 md:p-10">
       <ConfirmDialog />
@@ -79,7 +81,7 @@ export default function AdminUsersPage() {
         onSubmit={handleRegister}
         title="Create New User Account"
       />
-      <motion.h1
+      <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
@@ -93,7 +95,7 @@ export default function AdminUsersPage() {
           <Plus size={18} />
           Create New User
         </button>
-      </motion.h1>
+      </motion.div>
 
       {isLoading ? (
         <p className="text-gray-500">Loading users...</p>

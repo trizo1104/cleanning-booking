@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import {  LoaderCircle } from "lucide-react";
+
+import { LoaderCircle } from "lucide-react";
 import {
   Dialog,
   DialogTitle,
@@ -13,6 +14,7 @@ import {
   TableCell,
   TableBody,
   Button,
+  Tooltip,
 } from "@mui/material";
 import { getAllEmployee } from "@/slices/authSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,18 +32,16 @@ interface Booking {
 }
 
 export default function AdminBookingPage() {
-  // const [bookings, setBookings] = useState<Booking[]>([]);
   const dispatch = useDispatch<AppDispatch>();
-  const [loading, setLoading] = useState(false);
   const [openAssignDialog, setOpenAssignDialog] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState("");
-  const { users, isLoading } = useSelector((state: RootState) => state.auth);
-  const { bookings } = useSelector((state: RootState) => state.booking);
-  const [staffList, setStaffList] = useState([]);
+  const { users } = useSelector((state: RootState) => state.auth);
+  const { bookings, isLoading } = useSelector(
+    (state: RootState) => state.booking
+  );
 
   const handleClick = (booking: Booking) => {
     setSelectedBookingId(booking?._id);
-    // fetchStaffList();
     dispatch(getAllEmployee());
     setOpenAssignDialog(true);
   };
@@ -52,6 +52,11 @@ export default function AdminBookingPage() {
   };
 
   useEffect(() => {
+
+    dispatch(getAllBookings());
+  }, []);
+
+
     setLoading(true)
     dispatch(getAllBookings()).then(() => {
       setLoading(false)
@@ -69,6 +74,7 @@ export default function AdminBookingPage() {
     // }
   };
 
+
   return (
     <section className="p-6">
       <motion.h1
@@ -80,7 +86,7 @@ export default function AdminBookingPage() {
         Booking Management
       </motion.h1>
 
-      {loading ? (
+      {isLoading ? (
         <div className="flex justify-center py-20 text-gray-500">
           <LoaderCircle className="animate-spin" size={24} />
         </div>
@@ -119,6 +125,10 @@ export default function AdminBookingPage() {
                           ? "bg-green-200 text-green-800"
                           : booking.status === "pending"
                           ? "bg-yellow-200 text-yellow-800"
+                          : booking.status === "cancelled"
+                          ? "bg-red-200 text-black"
+                          : booking.status === "paid"
+                          ? "bg-orange-200-200 text-yellow-800"
                           : "bg-gray-200 text-gray-700"
                       }`}
                     >
@@ -126,7 +136,7 @@ export default function AdminBookingPage() {
                     </span>
                   </td>
                   <td className="py-3 px-4 text-left space-x-2">
-                    {booking.status === "pending" ? (
+                    {booking.status === "pending" && (
                       <motion.button
                         type="submit"
                         whileHover={{ scale: 1.03 }}
@@ -137,23 +147,6 @@ export default function AdminBookingPage() {
                         className="bg-yellow-600 text-white p-2 rounded-md"
                       >
                         Assign
-                      </motion.button>
-                    ) : (
-                      <motion.button
-                        type="submit"
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => updateStatus(booking._id, "done")}
-                        className={`${
-                          booking.status === "done"
-                            ? "bg-green-200 text-green-800"
-                            : booking.status === "pending"
-                            ? "bg-yellow-200 text-yellow-800"
-                            : "bg-gray-200 text-gray-700"
-                        } p-2 rounded-md`}
-                        disabled={booking.status !== "done"}
-                      >
-                        Done
                       </motion.button>
                     )}
                   </td>
@@ -166,35 +159,80 @@ export default function AdminBookingPage() {
             onClose={() => setOpenAssignDialog(false)}
             maxWidth="md"
             fullWidth
+            PaperProps={{
+              sx: {
+                borderRadius: 3,
+                boxShadow: 10,
+                backgroundColor: "#f9fafb",
+              },
+            }}
           >
-            <DialogTitle>Assign Staff</DialogTitle>
+            <DialogTitle
+              sx={{
+                fontSize: "1.5rem",
+                fontWeight: "bold",
+                textAlign: "center",
+                bgcolor: "#1976d2",
+                color: "white",
+              }}
+            >
+              Assign Staff
+            </DialogTitle>
+
             <DialogContent>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Phone</TableCell>
-                    {/* <TableCell>Status</TableCell> */}
-                    <TableCell>Action</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Phone</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {users.map((staff, index) => (
-                    <TableRow key={staff._id}>
-                      <TableCell>{staff.name}</TableCell>
-                      <TableCell>{staff.phone}</TableCell>
-                      {/* <TableCell>{staff.status}</TableCell> */}
+                  {users.map((staff) => (
+                    <TableRow
+                      key={staff._id}
+                      sx={{
+                        "&:hover": {
+                          backgroundColor: "#f1f1f1",
+                        },
+                        transition: "all 0.3s",
+                      }}
+                    >
                       <TableCell>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          size="small"
-                          onClick={() =>
-                            handleAssignStaff(staff._id, selectedBookingId)
-                          }
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                          }}
                         >
-                          Assign
-                        </Button>
+                          <span>{staff.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{staff.phone}</TableCell>
+                      <TableCell>
+                        <Tooltip title="Assign this staff">
+                          <Button
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            onClick={() =>
+                              handleAssignStaff(staff._id, selectedBookingId)
+                            }
+                            sx={{
+                              textTransform: "none",
+                              borderRadius: 2,
+                              boxShadow: 2,
+                              transition: "transform 0.2s",
+                              "&:hover": {
+                                transform: "scale(1.05)",
+                              },
+                            }}
+                          >
+                            Assign
+                          </Button>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))}
