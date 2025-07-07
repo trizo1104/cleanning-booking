@@ -54,7 +54,7 @@ export default function AdminDashboard() {
     dispatch(getAllReviewForAdmin());
     dispatch(getAllService());
     dispatch(getAllUser());
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     const currentDate = new Date();
