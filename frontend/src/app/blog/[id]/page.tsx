@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import { getDetailBlog } from "@/slices/blogSlice";
 
-export default function BlogDetailPage() {
+const BlogDetailPage = () => {
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const dispatch = useDispatch<AppDispatch>();
@@ -19,7 +19,7 @@ export default function BlogDetailPage() {
     } else {
       return notFound;
     }
-  }, []);
+  }, [id, dispatch]);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -53,7 +53,6 @@ export default function BlogDetailPage() {
         />
       )}
 
-      {/* Blog content (HTML from Tiptap, CKEditor...) */}
       {blog?.content && (
         <article
           className="prose prose-green max-w-none prose-img:rounded-lg prose-a:text-blue-600"
@@ -62,4 +61,6 @@ export default function BlogDetailPage() {
       )}
     </div>
   );
-}
+};
+
+export default BlogDetailPage;
