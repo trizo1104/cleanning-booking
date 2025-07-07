@@ -14,7 +14,7 @@ const bookingSchema = new mongoose.Schema({
   noteFromStaff: { type: String },
   status: {
     type: String,
-    enum: ["pending", "assigned", "done", "cancelled"],
+    enum: ["pending", "assigned", "done", "cancelled", "paid"],
     default: "pending",
   },
   selectedOptionType: { type: String },

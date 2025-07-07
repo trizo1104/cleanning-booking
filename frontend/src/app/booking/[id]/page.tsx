@@ -28,8 +28,7 @@ const BookingPage = () => {
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
-  const [formData, setFormData] = useState<IBooking>({
-    id: "",
+  const [formData, setFormData] = useState<IBookingPayload>({
     service: "",
     selectedOptionType: "",
     selectedPrice: "",
@@ -49,7 +48,6 @@ const BookingPage = () => {
 
   useEffect(() => {
     setFormData({
-      id: service?._id,
       service: service?._id,
       selectedOptionType: "",
       selectedPrice: "",

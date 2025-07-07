@@ -21,7 +21,7 @@ const PaymentStatusPage = () => {
         const res = await axios.get(
           `http://localhost:8080/api/payment-zalo/check-payment-status/${transactionId}`
         );
-        if (res.data.success && res.data.status === "pending") {
+        if (res.data.success && res.data.status === "paid") {
           setStatus("redirecting");
           setTimeout(
             () => router.push("/checking-payment/payment-success"),

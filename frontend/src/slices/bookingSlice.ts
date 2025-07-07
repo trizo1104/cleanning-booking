@@ -10,6 +10,7 @@ import {
 
 interface IbookingState {
   bookings: IBooking[];
+  getBookings: IGetBooking[];
   mess: string;
   review: IGetReview[];
   isLoading: boolean;
@@ -18,6 +19,7 @@ interface IbookingState {
 
 const initialState: IbookingState = {
   bookings: [],
+  getBookings: [],
   mess: "",
   review: [],
   isLoading: false,
@@ -38,9 +40,23 @@ export const getAllBookings = createAsyncThunk(
   }
 );
 
+export const getMyBookings = createAsyncThunk(
+  "booking/getMyBookings",
+  async (_, thunkAPI) => {
+    try {
+      const res = await axiosInstance.get("/booking/my-bookings");
+      return res.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch products"
+      );
+    }
+  }
+);
+
 export const createBooking = createAsyncThunk(
   "booking/createBooking",
-  async (data: IBooking, thunkAPI) => {
+  async (data: IBookingPayload, thunkAPI) => {
     try {
       const res = await axiosInstance.post(createBookingAPI, data);
       return res.data;
@@ -127,6 +143,20 @@ export const assignStaff = createAsyncThunk(
   }
 );
 
+export const cancelBooking = createAsyncThunk(
+  "booking/cancelBooking",
+  async (bookingId: string, thunkAPI) => {
+    try {
+      const response = await axiosInstance.post(`/booking/cancel/${bookingId}`);
+      return response.data.booking;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Lỗi hủy booking"
+      );
+    }
+  }
+);
+
 const bookingSlice = createSlice({
   name: "booking",
   initialState,
@@ -201,6 +231,9 @@ const bookingSlice = createSlice({
       .addCase(deleteReview.fulfilled, (state, action: PayloadAction<any>) => {
         state.isLoading = false;
         state.mess = action.payload;
+
+        // Xoá review khỏi danh sách
+        state.review = state.review.filter((r) => r._id !== action.payload);
       })
 
       .addCase(deleteReview.rejected, (state, action: PayloadAction<any>) => {
@@ -208,26 +241,50 @@ const bookingSlice = createSlice({
         state.error = action.payload;
       })
 
-      // AssignStaff
       .addCase(assignStaff.fulfilled, (state, action: PayloadAction<any>) => {
-        console.log(action.payload.booking);
+        const updated = action.payload.booking;
 
-        const targetBooking = state.bookings.find(
-          (booking) => booking._id === action.payload.booking._id
-        );
-
-        if (targetBooking) {
-          targetBooking.status = "assigned";
+        const index = state.bookings.findIndex((b) => b._id === updated._id);
+        if (index !== -1) {
+          state.bookings[index] = {
+            ...state.bookings[index],
+            ...updated,
+          };
+        } else {
+          state.bookings.push(updated);
         }
       })
 
       .addCase(
         getAllBookings.fulfilled,
         (state, action: PayloadAction<any>) => {
-          console.log(action.payload);
           state.bookings = action.payload;
         }
-      );
+      )
+
+      .addCase(getMyBookings.fulfilled, (state, action: PayloadAction<any>) => {
+        state.getBookings = action.payload;
+      })
+
+      // Cancel booking
+      .addCase(
+        cancelBooking.fulfilled,
+        (state, action: PayloadAction<IGetBooking>) => {
+          const updatedBooking = action.payload;
+          const index = state.getBookings.findIndex(
+            (b) => b._id === updatedBooking._id
+          );
+
+          if (index !== -1) {
+            state.getBookings[index] = updatedBooking;
+          }
+        }
+      )
+
+      .addCase(cancelBooking.rejected, (state, action: PayloadAction<any>) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
   },
 });
 

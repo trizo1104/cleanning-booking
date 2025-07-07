@@ -8,6 +8,7 @@ import {
   Briefcase,
   Star,
   LogOutIcon,
+  Rss,
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
@@ -21,6 +22,7 @@ const navItems = [
   { label: "Services", icon: Briefcase, href: "/dashboard/services" },
   { label: "Employees", icon: Users, href: "/dashboard/employees" },
   { label: "Users", icon: Users, href: "/dashboard/users" },
+  { label: "Blogs", icon: Rss, href: "/dashboard/blogs" },
   { label: "Reviews", icon: Star, href: "/dashboard/reviews" },
 ];
 

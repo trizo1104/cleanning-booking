@@ -4,6 +4,7 @@ import serviceReducer from "../slices/serviceSlice";
 import productReducer from "../slices/productSlice";
 import bookingReducer from "../slices/bookingSlice";
 import employeeReducer from "../slices/employeeSlice";
+import blogReducer from "../slices/blogSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     product: productReducer,
     booking: bookingReducer,
     employee: employeeReducer,
+    blog: blogReducer,
   },
 });
 

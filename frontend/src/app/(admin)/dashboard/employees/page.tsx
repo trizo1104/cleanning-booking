@@ -17,7 +17,7 @@ import UserFormModal from "@/components/SignUpModal";
 
 export default function AdminEmployeesPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { users, isLoading } = useSelector((state: RootState) => state.auth);
+  const { staff, isLoading } = useSelector((state: RootState) => state.auth);
   const { confirm, ConfirmDialog } = useConfirmDialog();
   const [openModal, setOpenModal] = useState(false);
 
@@ -29,8 +29,7 @@ export default function AdminEmployeesPage() {
         try {
           const resultAction = await dispatch(deleteEmployee(id));
           if (deleteEmployee.fulfilled.match(resultAction)) {
-            toast.success(resultAction.payload);
-            dispatch(getAllEmployee());
+            toast.success(resultAction.payload.message);
           } else if (deleteEmployee.rejected.match(resultAction)) {
             toast.error(`${resultAction.payload}`);
           }
@@ -63,7 +62,6 @@ export default function AdminEmployeesPage() {
         const resAction = await dispatch(signUpStaff(formData));
         if (signUpStaff.fulfilled.match(resAction)) {
           toast.success("Sign up success");
-          dispatch(getAllEmployee());
           setOpenModal(false);
         } else if (signUpStaff.rejected.match(resAction)) {
           toast.error(`Sign up failed: ${resAction.payload}`);
@@ -73,6 +71,8 @@ export default function AdminEmployeesPage() {
       }
     }
   };
+
+  console.log(staff);
 
   return (
     <section className="min-h-screen bg-white p-6 md:p-10">
@@ -103,11 +103,11 @@ export default function AdminEmployeesPage() {
 
       {isLoading ? (
         <p className="text-gray-500">Loading employees...</p>
-      ) : users.length === 0 ? (
+      ) : staff.length === 0 ? (
         <p className="text-gray-500">No employees found.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {users.map((emp, index) => (
+          {staff.map((emp: User, index) => (
             <motion.div
               key={emp._id}
               initial={{ opacity: 0, y: 20 }}
@@ -132,8 +132,7 @@ export default function AdminEmployeesPage() {
               <p className="text-sm text-gray-600 mt-1">{emp.email}</p>
               <p className="text-sm text-gray-500">Phone: {emp?.phone}</p>
               <p className="text-sm text-gray-500">
-                {" "}
-                {formatDateTime(emp?.createdAt)}
+                Created: {formatDateTime(emp.createdAt)}
               </p>
               <div className="flex gap-2 mt-4">
                 <button className="flex items-center gap-1 text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">

@@ -17,6 +17,7 @@ import { PayloadAction } from "@reduxjs/toolkit";
 interface AuthState {
   user: User | null;
   users: User[];
+  staff: User[];
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -26,6 +27,7 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   users: [],
+  staff: [],
   isAuthenticated: false,
   isLoading: false,
   error: null,
@@ -153,10 +155,10 @@ export const deleteUser = createAsyncThunk(
   async (id: string, thunkAPI) => {
     try {
       const res = await axiosInstance.post(deleteUserAPI(id));
-      return res.data.message;
+      return { id, message: res.data.message };
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch products"
+        error.response?.data?.message || "Failed to delete user"
       );
     }
   }
@@ -167,10 +169,10 @@ export const deleteEmployee = createAsyncThunk(
   async (id: string, thunkAPI) => {
     try {
       const res = await axiosInstance.post(deleteEmployeeAPI(id));
-      return res.data.message;
+      return { id, message: res.data.message };
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to fetch products"
+        error.response?.data?.message || "Failed to delete employee"
       );
     }
   }
@@ -190,187 +192,117 @@ const authsSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // login
-    builder.addCase(loginUser.pending, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    });
-    builder.addCase(
-      loginUser.fulfilled,
-      (state, action: PayloadAction<User>) => {
+    builder
+      // login user
+      .addCase(loginUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action: PayloadAction<User>) => {
         state.isLoading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
-      }
-    );
-    builder.addCase(loginUser.rejected, (state, action: PayloadAction<any>) => {
-      state.isLoading = false;
-      state.user = null;
-      state.isAuthenticated = false;
-      state.error = action.payload;
-    });
-
-    // login-staff
-    builder.addCase(loginStaff.pending, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    });
-    builder.addCase(
-      loginStaff.fulfilled,
-      (state, action: PayloadAction<User>) => {
-        state.isLoading = false;
-        state.user = action.payload;
-        state.isAuthenticated = true;
-      }
-    );
-    builder.addCase(
-      loginStaff.rejected,
-      (state, action: PayloadAction<any>) => {
+      })
+      .addCase(loginUser.rejected, (state, action: PayloadAction<any>) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
         state.error = action.payload;
-      }
-    );
-    //signup
-    builder.addCase(signUp.pending, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    });
-    builder.addCase(signUp.fulfilled, (state) => {
-      state.isLoading = false;
-      state.error = null;
-    });
-    builder.addCase(signUp.rejected, (state, action: PayloadAction<any>) => {
-      state.isLoading = false;
-      state.error = action.payload;
-    });
+      })
 
-    builder.addCase(signUpStaff.pending, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    });
-    builder.addCase(signUpStaff.fulfilled, (state) => {
-      state.isLoading = false;
-      state.error = null;
-    });
-    builder.addCase(
-      signUpStaff.rejected,
-      (state, action: PayloadAction<any>) => {
+      // login staff
+      .addCase(loginStaff.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loginStaff.fulfilled, (state, action: PayloadAction<User>) => {
+        state.isLoading = false;
+        state.user = action.payload;
+        state.isAuthenticated = true;
+      })
+      .addCase(loginStaff.rejected, (state, action: PayloadAction<any>) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+        state.error = action.payload;
+      })
+
+      // signup user
+      .addCase(signUp.fulfilled, (state, action: PayloadAction<User>) => {
+        state.isLoading = false;
+        state.users.push(action.payload);
+      })
+      .addCase(signUp.rejected, (state, action: PayloadAction<any>) => {
         state.isLoading = false;
         state.error = action.payload;
-      }
-    );
+      });
 
-    //logout
-    builder.addCase(logoutUser.pending, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    });
-
-    builder.addCase(logoutUser.fulfilled, (state) => {
-      state.user = null;
-      state.error = null;
-      state.isAuthenticated = false;
-      state.isLoading = false;
-      localStorage.removeItem("user");
-    });
-
-    builder.addCase(
-      logoutUser.rejected,
-      (state, action: PayloadAction<any>) => {
+    // signup staff
+    builder
+      .addCase(signUpStaff.fulfilled, (state, action: PayloadAction<User>) => {
+        state.users.push(action.payload);
+        state.isLoading = false;
+      })
+      .addCase(signUpStaff.rejected, (state, action: PayloadAction<any>) => {
+        state.isLoading = false;
         state.error = action.payload;
-      }
-    );
+      })
 
-    //get all user
-    builder.addCase(getAllUser.pending, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    });
-    builder.addCase(
-      getAllUser.fulfilled,
-      (state, action: PayloadAction<User[]>) => {
+      // logout
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.error = null;
+        state.isAuthenticated = false;
+        state.isLoading = false;
+        localStorage.removeItem("user");
+      })
+
+      // fetch current user
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.isAuthenticated = true;
+      })
+      .addCase(fetchCurrentUser.rejected, (state) => {
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+
+      // get all users
+      .addCase(getAllUser.fulfilled, (state, action: PayloadAction<User[]>) => {
         state.users = action.payload;
         state.isLoading = false;
         state.isAuthenticated = true;
-      }
-    );
-    builder.addCase(getAllUser.rejected, (state) => {
-      state.user = null;
-      state.isLoading = false;
-      state.isAuthenticated = false;
-    });
+      })
 
-    //get all employee
-    builder.addCase(getAllEmployee.pending, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    });
-    builder.addCase(
-      getAllEmployee.fulfilled,
-      (state, action: PayloadAction<User[]>) => {
-        state.users = action.payload;
-        state.isLoading = false;
-        state.isAuthenticated = true;
-      }
-    );
-    builder.addCase(getAllEmployee.rejected, (state) => {
-      state.user = null;
-      state.isLoading = false;
-      state.isAuthenticated = false;
-    });
+      // get all employees
+      .addCase(
+        getAllEmployee.fulfilled,
+        (state, action: PayloadAction<User[]>) => {
+          state.staff = action.payload;
+          state.isLoading = false;
+          state.isAuthenticated = true;
+        }
+      )
 
-    //me
-    builder.addCase(fetchCurrentUser.fulfilled, (state, action) => {
-      state.user = action.payload;
-      state.isAuthenticated = true;
-    });
+      // delete user
+      .addCase(
+        deleteUser.fulfilled,
+        (state, action: PayloadAction<{ id: string; message: string }>) => {
+          state.users = state.users.filter((u) => u._id !== action.payload.id);
+          state.mess = action.payload.message;
+          state.isLoading = false;
+        }
+      )
 
-    builder.addCase(fetchCurrentUser.rejected, (state) => {
-      state.user = null;
-      state.isAuthenticated = false;
-    });
-
-    //delete user
-    builder.addCase(deleteUser.pending, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    });
-    builder.addCase(
-      deleteUser.fulfilled,
-      (state, action: PayloadAction<string>) => {
-        state.mess = action.payload;
-        state.isLoading = false;
-      }
-    );
-    builder.addCase(
-      deleteUser.rejected,
-      (state, action: PayloadAction<any>) => {
-        state.isLoading = false;
-        state.error = action.payload;
-      }
-    );
-
-    //delete employee
-    builder.addCase(deleteEmployee.pending, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    });
-    builder.addCase(
-      deleteEmployee.fulfilled,
-      (state, action: PayloadAction<string>) => {
-        state.mess = action.payload;
-        state.isLoading = false;
-      }
-    );
-    builder.addCase(
-      deleteEmployee.rejected,
-      (state, action: PayloadAction<any>) => {
-        state.isLoading = false;
-        state.error = action.payload;
-      }
-    );
+      // delete employee
+      .addCase(
+        deleteEmployee.fulfilled,
+        (state, action: PayloadAction<{ id: string; message: string }>) => {
+          state.staff = state.staff.filter((u) => u._id !== action.payload.id);
+          state.mess = action.payload.message;
+          state.isLoading = false;
+        }
+      );
   },
 });
 

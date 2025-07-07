@@ -13,56 +13,58 @@ const config = {
 };
 
 const payment = async (req, res) => {
-  const { amount, items } = req.body;
-  const user = req.user;
+  const { amount, items, bookingId } = req.body;
   const transID = Math.floor(Math.random() * 1000000);
   const appTransId = `${moment().format("YYMMDD")}_${transID}`;
 
-  const embeddata = {
-    preferred_payment_methods: ["international_card"],
-    redirecturl: `http://localhost:3000/checking-payment`,
-    user: user.id,
-    service: items[0].service,
-    date: items[0].date,
-    time: items[0].time,
-    address: items[0].address,
-    note: items[0]?.note || "",
-    selectedOptionType: items[0]?.selectedOptionType || "",
-    selectedPrice: amount,
-    transactionId: appTransId,
-  };
-
-  const order = {
-    app_id: config.app_id,
-    app_trans_id: appTransId,
-    app_user: user.id,
-    app_time: Date.now(),
-    item: JSON.stringify(items),
-    embed_data: JSON.stringify(embeddata),
-    amount,
-    description: "ZaloPay Booking",
-    bank_code: "",
-    callback_url: `${process.env.NGROK_URL}/api/payment-zalo/callback`,
-  };
-
-  const data =
-    config.app_id +
-    "|" +
-    order.app_trans_id +
-    "|" +
-    order.app_user +
-    "|" +
-    order.amount +
-    "|" +
-    order.app_time +
-    "|" +
-    order.embed_data +
-    "|" +
-    order.item;
-  order.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
-
   try {
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      bookingId,
+      { transactionId: appTransId },
+      { new: true }
+    );
+
+    if (!updatedBooking) {
+      return res.status(404).json({ message: "Booking không tồn tại" });
+    }
+
+    const embeddata = {
+      redirecturl: `http://localhost:3000/checking-payment`,
+      transactionId: appTransId,
+      bookingId,
+    };
+
+    const order = {
+      app_id: config.app_id,
+      app_trans_id: appTransId,
+      app_user: items[0].user,
+      app_time: Date.now(),
+      item: JSON.stringify(items),
+      embed_data: JSON.stringify(embeddata),
+      amount,
+      description: "ZaloPay Booking",
+      bank_code: "",
+      callback_url: `${process.env.NGROK_URL}/api/payment-zalo/callback`,
+    };
+
+    const data =
+      config.app_id +
+      "|" +
+      order.app_trans_id +
+      "|" +
+      order.app_user +
+      "|" +
+      order.amount +
+      "|" +
+      order.app_time +
+      "|" +
+      order.embed_data +
+      "|" +
+      order.item;
+    order.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
+
     const response = await axios.post(config.endpoint, null, { params: order });
+
     return res.status(200).json(response.data);
   } catch (error) {
     return res
@@ -86,26 +88,29 @@ const paymentCallBack = async (req, res) => {
     }
 
     const dataJson = JSON.parse(dataStr);
-    const { amount, embed_data } = dataJson;
+    console.log("data", dataJson);
+    const { embed_data } = dataJson;
     const embed = JSON.parse(embed_data);
+    // const transactionId = embed.transactionId;
+    console.log("em", embed);
 
-    const booking = new Booking({
-      user: embed.user,
-      service: embed.service,
-      date: embed.date,
-      time: embed.time,
-      address: embed.address,
-      note: embed.note,
-      selectedOptionType: embed.selectedOptionType,
-      selectedPrice: embed.selectedPrice || amount,
-      status: "pending",
-      transactionId: embed.transactionId,
-    });
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      embed.bookingId,
+      { status: "paid" },
+      { new: true }
+    );
 
-    await booking.save();
+    if (!updatedBooking) {
+      result.return_code = -2;
+      result.return_message = "Booking not found";
+      return res.json(result);
+    }
 
     result.return_code = 1;
     result.return_message = "success";
+
+    // result.return_code = 0;
+    // result.return_message = "Payment not successful";
   } catch (err) {
     result.return_code = 0;
     result.return_message = err.message;

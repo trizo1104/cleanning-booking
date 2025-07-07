@@ -54,14 +54,12 @@ const getAllBookings = async (req, res) => {
       .populate("service", "name")
       // .populate("employee", "name email")
       .sort({ createdAt: -1 });
-    // console.log(bookings)
     res.json(bookings);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({ message: "Failed to fetch all bookings" });
   }
 };
-
 
 const getAllPendingBookings = async (req, res) => {
   try {
@@ -92,12 +90,7 @@ const assignStaff = async (req, res) => {
     booking.assignedStaff = employeeId;
     booking.status = "assigned";
 
-
     await booking.save();
-    console.log(booking)
-
-
-    console.log(employee.name)
 
     if (!employee.assignedBookings.includes(booking._id)) {
       employee.assignedBookings.push(booking._id);
@@ -120,7 +113,7 @@ const cancelBooking = async (req, res) => {
     booking.status = "cancelled";
     await booking.save();
 
-    res.json({ message: "Booking cancelled" });
+    res.json({ message: "Booking cancelled", booking });
   } catch (error) {
     res.status(500).json({ message: "Failed to cancel booking" });
   }
@@ -210,5 +203,5 @@ module.exports = {
   cancelBooking,
   getAllReviews,
   deleteReview,
-  getAllPendingBookings
+  getAllPendingBookings,
 };
