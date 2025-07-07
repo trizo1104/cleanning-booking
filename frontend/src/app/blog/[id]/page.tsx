@@ -1,6 +1,7 @@
 "use client";
-import { notFound, useParams } from "next/navigation";
+
 import React, { useEffect } from "react";
+import { notFound, useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,18 +9,24 @@ import { AppDispatch, RootState } from "@/store/store";
 import { getDetailBlog } from "@/slices/blogSlice";
 
 const BlogDetailPage = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
-  const dispatch = useDispatch<AppDispatch>();
+
   const { blog } = useSelector((state: RootState) => state.blog);
 
   useEffect(() => {
     if (id) {
       dispatch(getDetailBlog(id));
     } else {
-      return notFound;
+      return notFound();
     }
   }, [id, dispatch]);
+
+  if (!blog)
+    return (
+      <p className="text-center mt-20 text-gray-500">Đang tải bài viết...</p>
+    );
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -53,6 +60,7 @@ const BlogDetailPage = () => {
         />
       )}
 
+      {/* Blog content */}
       {blog?.content && (
         <article
           className="prose prose-green max-w-none prose-img:rounded-lg prose-a:text-blue-600"
