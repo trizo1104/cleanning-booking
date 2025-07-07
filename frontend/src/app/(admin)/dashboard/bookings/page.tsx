@@ -52,16 +52,8 @@ export default function AdminBookingPage() {
   };
 
   useEffect(() => {
-
     dispatch(getAllBookings());
   }, []);
-
-
-    setLoading(true)
-    dispatch(getAllBookings()).then(() => {
-      setLoading(false)
-    })
-  }, [dispatch]);
 
   const updateStatus = async (id: string, status: string) => {
     // try {
@@ -73,7 +65,6 @@ export default function AdminBookingPage() {
     //   console.error("Failed to update status", err);
     // }
   };
-
 
   return (
     <section className="p-6">
