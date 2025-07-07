@@ -42,7 +42,7 @@ export default function AdminEmployeesPage() {
 
   useEffect(() => {
     dispatch(getAllEmployee());
-  }, []);
+  }, [dispatch]);
 
   const handleRegister = async (formData: {
     name: string;

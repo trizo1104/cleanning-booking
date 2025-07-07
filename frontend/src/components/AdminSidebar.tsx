@@ -39,7 +39,7 @@ export default function AdminSidebar() {
 
   useEffect(() => {
     dispatch(fetchCurrentUser());
-  }, []);
+  }, [dispatch]);
   return (
     <aside className="w-64 min-h-screen bg-white border-r shadow-sm px-4 py-6 flex flex-col justify-between">
       <div>

@@ -1,5 +1,5 @@
 "use client";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { notFound, useParams, useRouter } from "next/navigation";
@@ -28,15 +28,8 @@ const BookingPage = () => {
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
+
   const [formData, setFormData] = useState<IBookingPayload>({
-    service: "",
-    selectedOptionType: "",
-    selectedPrice: "",
-    date: "",
-    time: "",
-    address: "",
-    note: "",
-  });
 
   useEffect(() => {
     if (id) {

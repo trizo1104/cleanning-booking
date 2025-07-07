@@ -34,7 +34,7 @@ const Header = () => {
 
   useEffect(() => {
     dispatch(fetchCurrentUser());
-  }, []);
+  }, [dispatch]);
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">

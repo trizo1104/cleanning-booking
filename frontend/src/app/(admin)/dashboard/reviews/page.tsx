@@ -1,5 +1,5 @@
 "use client";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Star, Trash2, MessageCircle } from "lucide-react";
@@ -21,7 +21,7 @@ export default function AdminReviewsPage() {
 
   useEffect(() => {
     dispatch(getAllReviewForAdmin());
-  }, []);
+  }, [dispatch]);
 
   const filteredReviews = review.filter((r: IGetReview) => {
     const matchRating = selectedRating === "" || r.rating === selectedRating;

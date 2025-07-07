@@ -1,5 +1,5 @@
 "use client";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -27,7 +27,7 @@ export default function AdminServicesPage() {
 
   useEffect(() => {
     dispatch(getAllService());
-  }, []);
+  }, [dispatch]);
 
   const handleDelete = async (id: string) => {
     confirm({

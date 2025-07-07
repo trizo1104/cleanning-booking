@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import AuthImagePattern from "@/components/skeletons/AuthImagePattern";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";

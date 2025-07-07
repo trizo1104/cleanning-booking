@@ -1,5 +1,5 @@
 "use client";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -20,7 +20,7 @@ export default function ProtectRoute({
     if (allowedRoles && !allowedRoles.includes(user?.role.toLowerCase())) {
       router.push("/unauthorized");
     }
-  }, [user]);
+  }, [user, allowedRoles, router]);
 
   return <>{children}</>;
 }

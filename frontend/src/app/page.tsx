@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Slider from "react-slick";
 import { ChevronDownIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,8 +25,12 @@ export default function Home() {
 
   useEffect(() => {
     dispatch(getAllService());
+
     dispatch(getAllBlogs());
-  }, []);
+  
+
+  }, [dispatch]);
+
 
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 

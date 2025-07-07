@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+
 import { LoaderCircle } from "lucide-react";
 import {
   Dialog,
@@ -51,8 +52,28 @@ export default function AdminBookingPage() {
   };
 
   useEffect(() => {
+
     dispatch(getAllBookings());
   }, []);
+
+
+    setLoading(true)
+    dispatch(getAllBookings()).then(() => {
+      setLoading(false)
+    })
+  }, [dispatch]);
+
+  const updateStatus = async (id: string, status: string) => {
+    // try {
+    //   await axios.post(`/api/admin/bookings/${id}/status`, { status });
+    //   setBookings((prev) =>
+    //     prev.map((b) => (b._id === id ? { ...b, status } : b))
+    //   );
+    // } catch (err) {
+    //   console.error("Failed to update status", err);
+    // }
+  };
+
 
   return (
     <section className="p-6">

@@ -1,5 +1,5 @@
 "use client";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { CalendarDays, ClipboardCheck, StickyNote } from "lucide-react";
@@ -28,6 +28,7 @@ export default function StaffDashboard() {
   );
   const { user } = useSelector((state: any) => state.auth);
 
+
   const handleAssignStaff = async (bookingId: string) => {
     const resultAction = await dispatch(
       acceptBooking({ bookingId, employeeId: user?.id })
@@ -37,13 +38,11 @@ export default function StaffDashboard() {
     }
   };
 
-  useEffect(() => {
-    dispatch(fetchCurrentUser());
-  }, []);
 
   useEffect(() => {
+    dispatch(fetchCurrentUser());
     dispatch(getAssBookings());
-  }, []);
+  }, [dispatch]);
 
   const updateStatus = async (id: string, status: string) => {
     const resultAction = await dispatch(updateBookingStatus({ id, status }));

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ArrowLeftCircle, ArrowRightCircle } from "lucide-react";
 
 export const settingsHero = {

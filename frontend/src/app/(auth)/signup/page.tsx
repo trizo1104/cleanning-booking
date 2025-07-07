@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import AuthImagePattern from "@/components/skeletons/AuthImagePattern";
 import { signUp } from "@/slices/authSlice";
 import { AppDispatch } from "@/store/store";
