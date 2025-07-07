@@ -12,7 +12,7 @@ interface Blog {
   image?: string;
 }
 
-async function getBlog(id: string): Promise<Blog | null> {
+async function getBlog(id: string) {
   try {
     const res = await fetch(`http://localhost:8080/api/blogs/${id}`, {
       cache: "no-store",
