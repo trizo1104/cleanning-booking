@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import React from "react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -24,13 +24,11 @@ async function getBlog(id: string): Promise<Blog | null> {
   }
 }
 
-export default async function BlogDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const blog = await getBlog(params.id);
-  if (!blog) return notFound();
+export default async function BlogDetailPage() {
+  const params = useParams();
+  const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  if (!id) return notFound();
+  const blog = await getBlog(id);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -45,16 +43,18 @@ export default async function BlogDetailPage({
 
       {/* Blog title */}
       <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-        {blog.title}
+        {blog?.title}
       </h1>
 
       {/* Created time */}
-      <p className="text-gray-500 text-sm mb-6">
-        Created at: {new Date(blog.createdAt).toLocaleString()}
-      </p>
+      {blog?.createdAt && (
+        <p className="text-gray-500 text-sm mb-6">
+          Created at: {new Date(blog.createdAt).toLocaleString()}
+        </p>
+      )}
 
       {/* Blog image (optional) */}
-      {blog.image && (
+      {blog?.image && (
         <img
           src={blog.image}
           alt={blog.title}
@@ -63,10 +63,12 @@ export default async function BlogDetailPage({
       )}
 
       {/* Blog content (HTML from Tiptap, CKEditor...) */}
-      <article
-        className="prose prose-green max-w-none prose-img:rounded-lg prose-a:text-blue-600"
-        dangerouslySetInnerHTML={{ __html: blog.content }}
-      />
+      {blog?.content && (
+        <article
+          className="prose prose-green max-w-none prose-img:rounded-lg prose-a:text-blue-600"
+          dangerouslySetInnerHTML={{ __html: blog.content }}
+        />
+      )}
     </div>
   );
 }
