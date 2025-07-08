@@ -101,14 +101,14 @@ export default function AdminBookingPage() {
                   className="border-b hover:bg-gray-50 text-sm"
                 >
                   <td className="py-3 px-4">
-                    {booking?.user?.name || "unknown"}
+                    {booking.user?.name || "unknown"}
                   </td>
                   <td className="py-3 px-4">
-                    {booking?.service?.name || "unknown"}
+                    {booking.service?.name || "unknown"}
                   </td>
-                  <td className="py-3 px-4">{booking?.date}</td>
-                  <td className="py-3 px-4">{booking?.time}</td>
-                  <td className="py-3 px-4">{booking?.address}</td>
+                  <td className="py-3 px-4">{booking.date}</td>
+                  <td className="py-3 px-4">{booking.time}</td>
+                  <td className="py-3 px-4">{booking.address}</td>
                   <td className="py-3 px-4">
                     <span
                       className={`uppercase text-xs px-2 py-1 rounded-full ${
