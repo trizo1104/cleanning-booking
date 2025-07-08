@@ -93,8 +93,8 @@ export default function AdminBookingPage() {
                   transition={{ delay: i * 0.05 }}
                   className="border-b hover:bg-gray-50 text-sm"
                 >
-                  <td className="py-3 px-4">{booking.user?.name}</td>
-                  <td className="py-3 px-4">{booking.service?.name}</td>
+                  <td className="py-3 px-4">{booking?.user?.name}</td>
+                  <td className="py-3 px-4">{booking?.service?.name}</td>
                   <td className="py-3 px-4">{booking?.date}</td>
                   <td className="py-3 px-4">{booking?.time}</td>
                   <td className="py-3 px-4">{booking?.address}</td>
