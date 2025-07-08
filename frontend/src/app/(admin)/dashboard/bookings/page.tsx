@@ -55,17 +55,6 @@ export default function AdminBookingPage() {
     dispatch(getAllBookings());
   }, []);
 
-  const updateStatus = async (id: string, status: string) => {
-    // try {
-    //   await axios.post(`/api/admin/bookings/${id}/status`, { status });
-    //   setBookings((prev) =>
-    //     prev.map((b) => (b._id === id ? { ...b, status } : b))
-    //   );
-    // } catch (err) {
-    //   console.error("Failed to update status", err);
-    // }
-  };
-
   return (
     <section className="p-6">
       <motion.h1
@@ -96,7 +85,7 @@ export default function AdminBookingPage() {
               </tr>
             </thead>
             <tbody>
-              {bookings.map((booking, i) => (
+              {bookings?.map((booking, i) => (
                 <motion.tr
                   key={booking._id}
                   initial={{ opacity: 0, y: 10 }}
@@ -104,11 +93,11 @@ export default function AdminBookingPage() {
                   transition={{ delay: i * 0.05 }}
                   className="border-b hover:bg-gray-50 text-sm"
                 >
-                  <td className="py-3 px-4">{booking.user.name}</td>
-                  <td className="py-3 px-4">{booking.service.name}</td>
-                  <td className="py-3 px-4">{booking.date}</td>
-                  <td className="py-3 px-4">{booking.time}</td>
-                  <td className="py-3 px-4">{booking.address}</td>
+                  <td className="py-3 px-4">{booking.user?.name}</td>
+                  <td className="py-3 px-4">{booking.service?.name}</td>
+                  <td className="py-3 px-4">{booking?.date}</td>
+                  <td className="py-3 px-4">{booking?.time}</td>
+                  <td className="py-3 px-4">{booking?.address}</td>
                   <td className="py-3 px-4">
                     <span
                       className={`uppercase text-xs px-2 py-1 rounded-full ${
@@ -127,7 +116,7 @@ export default function AdminBookingPage() {
                     </span>
                   </td>
                   <td className="py-3 px-4 text-left space-x-2">
-                    {booking.status === "pending" && (
+                    {booking?.status === "pending" && (
                       <motion.button
                         type="submit"
                         whileHover={{ scale: 1.03 }}
@@ -180,7 +169,7 @@ export default function AdminBookingPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {users.map((staff) => (
+                  {users?.map((staff) => (
                     <TableRow
                       key={staff._id}
                       sx={{
@@ -198,10 +187,10 @@ export default function AdminBookingPage() {
                             gap: 8,
                           }}
                         >
-                          <span>{staff.name}</span>
+                          <span>{staff?.name}</span>
                         </div>
                       </TableCell>
-                      <TableCell>{staff.phone}</TableCell>
+                      <TableCell>{staff?.phone}</TableCell>
                       <TableCell>
                         <Tooltip title="Assign this staff">
                           <Button
@@ -209,7 +198,7 @@ export default function AdminBookingPage() {
                             color="success"
                             size="small"
                             onClick={() =>
-                              handleAssignStaff(staff._id, selectedBookingId)
+                              handleAssignStaff(staff?._id, selectedBookingId)
                             }
                             sx={{
                               textTransform: "none",
