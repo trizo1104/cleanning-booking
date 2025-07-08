@@ -55,13 +55,6 @@ export default function AdminBookingPage() {
     dispatch(getAllBookings());
   }, []);
 
-  if (isLoading) {
-    return (
-      <>
-        <p className="text-gray-500">Loading reviews...</p>
-      </>
-    );
-  }
   return (
     <section className="p-6">
       <motion.h1
