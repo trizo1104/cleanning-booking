@@ -78,7 +78,7 @@ export default function AdminBookingPage() {
           <LoaderCircle className="animate-spin" size={24} />
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div>
           <table className="min-w-full bg-white rounded-lg shadow">
             <thead className="bg-green-100 text-left text-sm text-green-800 uppercase">
               <tr>
