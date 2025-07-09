@@ -255,7 +255,7 @@ const authsSlice = createSlice({
         state.error = null;
         state.isAuthenticated = false;
         state.isLoading = false;
-        localStorage.removeItem("user");
+        // localStorage.removeItem("user");
       })
 
       // fetch current user
