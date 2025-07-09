@@ -5,13 +5,13 @@ const serviceRouter = express.Router();
 
 serviceRouter.get(
   "/",
-  middleware.protectRoute,
+  // middleware.protectRoute,
   servicesController.getAllServices
 );
 
 serviceRouter.get(
   "/:id",
-  middleware.protectRoute,
+  // middleware.protectRoute,
   // middleware.userOnly,
   servicesController.getServiceDetail
 );
