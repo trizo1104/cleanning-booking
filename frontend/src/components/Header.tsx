@@ -26,8 +26,6 @@ const Header = () => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
 
-  console.log(isAuthenticated);
-
   const handleLogout = () => {
     dispatch(logoutUser());
     toast.success("Logout success");

@@ -6,6 +6,7 @@ import { Bounce, ToastContainer } from "react-toastify";
 import Header from "@/components/Header";
 import { usePathname } from "next/navigation";
 import Footer from "@/components/Footer";
+import AuthProvider from "@/components/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,7 +59,11 @@ export default function RootLayout({
         />
         <ReduxProvider>
           {!hideHeader && <Header />}
-          <main className="min-h-screen bg-gray-50">{children}</main>
+          <main className="min-h-screen bg-gray-50">
+            {" "}
+            <AuthProvider />
+            {children}
+          </main>
           {!hideHeader && <Footer />}
         </ReduxProvider>
       </body>
