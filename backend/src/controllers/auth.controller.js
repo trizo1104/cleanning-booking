@@ -154,7 +154,12 @@ const signUpEmployee = async (req, res) => {
 
 const signOut = async (req, res) => {
   try {
-    res.cookie("jwt", "", { maxAge: 0 });
+    // res.cookie("jwt", "", { maxAge: 0 });
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
     return res.status(200).json({ mess: "Logout successfully!" });
   } catch (error) {
     console.log("logout error: ", error);
