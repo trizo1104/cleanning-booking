@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 import Slider from "react-slick";
-import { AppDispatch } from "@/store/store";
+import { AppDispatch, RootState } from "@/store/store";
 import { useDispatch, useSelector } from "react-redux";
 import { getDetailService } from "@/slices/serviceSlice";
 import { notFound, useParams } from "next/navigation";
@@ -24,6 +24,7 @@ const ServiceDetail = () => {
   const { service, isLoading } = useSelector((state: any) => state.service);
   const { products } = useSelector((state: any) => state.product);
   const { review } = useSelector((state: any) => state.booking);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     if (id) {
@@ -297,12 +298,21 @@ const ServiceDetail = () => {
               </div>
 
               <div className="mt-8 text-center animate-fade-in-up animation-delay-1600">
-                <Link
-                  href={`/booking/${id}`}
-                  className="inline-block w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                >
-                  Đặt Dịch Vụ Ngay
-                </Link>
+                {!isAuthenticated ? (
+                  <Link
+                    href={`/login`}
+                    className="inline-block w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                  >
+                    Đăng nhập để trải nghiệm
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/booking/${id}`}
+                    className="inline-block w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                  >
+                    Đặt Dịch Vụ Ngay
+                  </Link>
+                )}
               </div>
             </div>
           </div>
