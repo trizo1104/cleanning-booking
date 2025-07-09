@@ -88,12 +88,7 @@ const Header = () => {
                     >
                       My Bookings
                     </a>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-500 transition-colors duration-200"
-                    >
-                      Profile
-                    </button>
+
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-500 transition-colors duration-200"
