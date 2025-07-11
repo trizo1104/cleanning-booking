@@ -29,8 +29,8 @@ const payment = async (req, res) => {
     }
 
     const embeddata = {
-      // redirecturl: `https://cleanning-booking.vercel.app/checking-payment`,
-      redirecturl: "http://localhost:3000/checking-payment",
+      redirecturl: `https://cleanning-booking.vercel.app/checking-payment`,
+      // redirecturl: "http://localhost:3000/checking-payment",
       transactionId: appTransId,
       bookingId,
     };
