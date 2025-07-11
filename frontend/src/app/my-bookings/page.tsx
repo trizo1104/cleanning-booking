@@ -159,26 +159,23 @@ export default function MyBookingsPage() {
                 </div>
 
                 <div className="text-right">
-                  {booking.status === "done" ||
-                    (booking.status === "paid" && booking.rating == null && (
-                      <div className="flex gap-3 float-end">
-                        <Link
-                          href={`/my-bookings/${booking._id}/review`}
-                          className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
-                        >
-                          <Star size={18} />
-                          Đánh giá dịch vụ
-                        </Link>{" "}
-                        {booking.status !== "paid" && (
-                          <button
-                            onClick={() => handlePayment(booking)}
-                            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
-                          >
-                            Thanh toán
-                          </button>
-                        )}
-                      </div>
-                    ))}
+                  {booking.status === "done" && booking.rating == null && (
+                    <div className="flex gap-3 float-end">
+                      <Link
+                        href={`/my-bookings/${booking._id}/review`}
+                        className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
+                      >
+                        <Star size={18} />
+                        Đánh giá dịch vụ
+                      </Link>{" "}
+                      <button
+                        onClick={() => handlePayment(booking)}
+                        className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
+                      >
+                        Thanh toán
+                      </button>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ))}
