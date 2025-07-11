@@ -25,9 +25,9 @@ export default function MyBookingsPage() {
 
   const handlePayment = async (booking: IGetBooking) => {
     try {
-      console.log(booking);
       const res = await axiosInstance.post(
         "https://cleanning-booking.onrender.com/api/payment-zalo/pay-booking",
+        // "http://localhost:8080/api/payment-zalo/pay-booking",
         {
           amount: booking?.selectedPrice,
           items: [booking],

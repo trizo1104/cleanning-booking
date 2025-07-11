@@ -14,14 +14,19 @@ const CheckingPaymentInner = () => {
 
   const transactionId = searchParams.get("apptransid");
 
+  console.log(transactionId);
+
   useEffect(() => {
     const checkStatus = async () => {
       if (!transactionId) return router.push("/payment-failure");
       try {
         const res = await axios.get(
           `https://cleanning-booking.onrender.com/api/payment-zalo/check-payment-status/${transactionId}`
+          // `http://localhost:8080/api/payment-zalo/check-payment-status/${transactionId}`
         );
-        if (res.data.success && res.data.status === "pending") {
+
+        console.log(res.data);
+        if (res.data.success && res.data.status === "paid") {
           setStatus("redirecting");
           setTimeout(
             () => router.push("/checking-payment/payment-success"),

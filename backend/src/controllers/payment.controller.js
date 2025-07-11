@@ -29,7 +29,8 @@ const payment = async (req, res) => {
     }
 
     const embeddata = {
-      redirecturl: `https://cleanning-booking.vercel.app/checking-payment`,
+      // redirecturl: `https://cleanning-booking.vercel.app/checking-payment`,
+      redirecturl: "http://localhost:3000/checking-payment",
       transactionId: appTransId,
       bookingId,
     };
@@ -45,6 +46,7 @@ const payment = async (req, res) => {
       description: "ZaloPay Booking",
       bank_code: "",
       callback_url: `https://cleanning-booking.onrender.com/api/payment-zalo/callback`,
+      // callback_url: `${process.env.NGROK_URL}/api/payment-zalo/callback`,
     };
 
     const data =
@@ -88,11 +90,9 @@ const paymentCallBack = async (req, res) => {
     }
 
     const dataJson = JSON.parse(dataStr);
-    console.log("data", dataJson);
     const { embed_data } = dataJson;
     const embed = JSON.parse(embed_data);
     // const transactionId = embed.transactionId;
-    console.log("em", embed);
 
     const updatedBooking = await Booking.findByIdAndUpdate(
       embed.bookingId,

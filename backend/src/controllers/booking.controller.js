@@ -125,32 +125,35 @@ const reviewBooking = async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id);
 
+    console.log(booking.status);
+
     if (!booking) return res.status(404).json({ message: "Booking not found" });
 
-    if (booking.status !== "done")
+    if (booking.status === "done" || booking.status === "paid") {
+      const existingReview = await Review.findOne({ booking: booking._id });
+      if (existingReview)
+        return res
+          .status(400)
+          .json({ message: "This booking has already been reviewed" });
+
+      const newReview = new Review({
+        user: req.user._id,
+        booking: booking._id,
+        service: booking.service,
+        rating,
+        comment,
+      });
+
+      await newReview.save();
+
+      res
+        .status(201)
+        .json({ message: "Review submitted successfully", review: newReview });
+    } else {
       return res
         .status(400)
         .json({ message: "Only completed bookings can be reviewed" });
-
-    const existingReview = await Review.findOne({ booking: booking._id });
-    if (existingReview)
-      return res
-        .status(400)
-        .json({ message: "This booking has already been reviewed" });
-
-    const newReview = new Review({
-      user: req.user._id,
-      booking: booking._id,
-      service: booking.service,
-      rating,
-      comment,
-    });
-
-    await newReview.save();
-
-    res
-      .status(201)
-      .json({ message: "Review submitted successfully", review: newReview });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to submit review" });
