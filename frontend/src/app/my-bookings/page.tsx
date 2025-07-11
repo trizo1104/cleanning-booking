@@ -116,6 +116,8 @@ export default function MyBookingsPage() {
                         ? "bg-blue-500"
                         : booking.status === "cancelled"
                         ? "bg-red-500"
+                        : booking.status === "paid"
+                        ? "bg-orange-500"
                         : "bg-green-600"
                     }`}
                   >
@@ -159,23 +161,26 @@ export default function MyBookingsPage() {
                 </div>
 
                 <div className="text-right">
-                  {booking.status === "done" && booking.rating == null && (
-                    <div className="flex gap-3 float-end">
-                      <Link
-                        href={`/my-bookings/${booking._id}/review`}
-                        className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
-                      >
-                        <Star size={18} />
-                        Đánh giá dịch vụ
-                      </Link>{" "}
+                  <div className="flex gap-3 float-end">
+                    {booking.status === "done" ||
+                      (booking.status === "paid" && (
+                        <Link
+                          href={`/my-bookings/${booking._id}/review`}
+                          className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
+                        >
+                          <Star size={18} />
+                          Đánh giá dịch vụ
+                        </Link>
+                      ))}{" "}
+                    {booking.status === "done" && (
                       <button
                         onClick={() => handlePayment(booking)}
                         className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
                       >
                         Thanh toán
                       </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </motion.div>
             ))}
