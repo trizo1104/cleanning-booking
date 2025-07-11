@@ -13,21 +13,22 @@ import {
   updateBookingStatus,
 } from "@/slices/employeeSlice";
 import { assignStaff } from "@/slices/bookingSlice";
-import { fetchCurrentUser } from "@/slices/authSlice";
+import { fetchCurrentUser, logoutUser } from "@/slices/authSlice";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function StaffDashboard() {
   const [bookings, setBookings] = useState<IAssignBookings[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [note, setNote] = useState("");
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
   const dishpatch = useDispatch<AppDispatch>();
   const { assBookings, pendingBookings } = useSelector(
     (state: any) => state.employee
   );
   const { user } = useSelector((state: any) => state.auth);
-
 
   const handleAssignStaff = async (bookingId: string) => {
     const resultAction = await dispatch(
@@ -37,7 +38,6 @@ export default function StaffDashboard() {
       toast.success("Accept success");
     }
   };
-
 
   useEffect(() => {
     dispatch(fetchCurrentUser());
@@ -49,6 +49,12 @@ export default function StaffDashboard() {
     if (updateBookingStatus.fulfilled.match(resultAction)) {
       toast.success("Mark success");
     }
+  };
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    toast.success("Logout success");
+    router.push("/login-staff");
   };
 
   return (
@@ -63,29 +69,42 @@ export default function StaffDashboard() {
       </motion.h1>
 
       {/* Tabs */}
-      <div className="mb-6 flex flex-wrap justify-center gap-4">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => {
-            setSelectedBooking(null);
-            dishpatch(getAssBookings());
-          }}
-          className="flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-green-300 to-green-500 text-white shadow-md hover:shadow-lg transition"
-        >
-          <CalendarDays size={18} /> <span>Today</span>
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => {
-            setSelectedBooking("pending");
-            dishpatch(getPendingBookings());
-          }}
-          className="flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-blue-300 to-blue-500 text-white shadow-md hover:shadow-lg transition"
-        >
-          <ClipboardCheck size={18} /> <span>Pending</span>
-        </motion.button>
+      <div className="mb-6 flex flex-wrap justify-between">
+        <div className="flex gap-3 ">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setSelectedBooking(null);
+              dishpatch(getAssBookings());
+            }}
+            className="flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-green-300 to-green-500 text-white shadow-md hover:shadow-lg transition"
+          >
+            <CalendarDays size={18} /> <span>Today</span>
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setSelectedBooking("pending");
+              dishpatch(getPendingBookings());
+            }}
+            className="flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-blue-300 to-blue-500 text-white shadow-md hover:shadow-lg transition"
+          >
+            <ClipboardCheck size={18} /> <span>Pending</span>
+          </motion.button>
+        </div>
+
+        <div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-red-300 to-red-500 text-white shadow-md hover:shadow-lg transition"
+          >
+            <span>Logout</span>
+          </motion.button>
+        </div>
       </div>
 
       {/* Today Bookings */}
