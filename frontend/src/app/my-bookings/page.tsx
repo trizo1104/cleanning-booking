@@ -27,7 +27,7 @@ export default function MyBookingsPage() {
     try {
       console.log(booking);
       const res = await axiosInstance.post(
-        "http://localhost:8080/api/payment-zalo/pay-booking",
+        "https://cleanning-booking.onrender.com/api/payment-zalo/pay-booking",
         {
           amount: booking?.selectedPrice,
           items: [booking],
