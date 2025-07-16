@@ -20,7 +20,8 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://cleanning-booking.vercel.app, https://clean-hours.com",
+      "https://cleanning-booking.vercel.app",
+      "https://clean-hours.com",
     ],
     credentials: true,
   })
