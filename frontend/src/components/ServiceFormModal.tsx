@@ -67,16 +67,18 @@ export default function ServiceFormModal({
         technicianInfo: "",
         imageUrls: [],
       });
+      setBenefitsInput("");
+      setSafetyInput("");
     }
   }, [isOpen]);
 
   useEffect(() => {
-    if (defaultValues) {
+    if (defaultValues && isOpen) {
       setFormData(defaultValues);
-      setBenefitsInput(defaultValues.benefits?.join(", "));
-      setSafetyInput(defaultValues.safetyStandards?.join(", "));
+      setBenefitsInput(defaultValues.benefits?.join(", ") || "");
+      setSafetyInput(defaultValues.safetyStandards?.join(", ") || "");
     }
-  }, [defaultValues]);
+  }, [defaultValues, isOpen]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

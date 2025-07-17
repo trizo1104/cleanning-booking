@@ -63,7 +63,7 @@ export default function AdminServicesPage() {
     try {
       if (editMode && selectedService) {
         const res = await dispatch(
-          UpdateService({ ...selectedService, ...data })
+          UpdateService({ serviceData: data, id: selectedService._id })
         );
         if (UpdateService.fulfilled.match(res)) {
           toast.success("Service updated");
@@ -77,6 +77,8 @@ export default function AdminServicesPage() {
 
       dispatch(getAllService());
       setOpenModal(false);
+      setSelectedService(null);
+      setEditMode(false);
     } catch (error) {
       toast.error("Failed to save service");
     }
@@ -87,7 +89,11 @@ export default function AdminServicesPage() {
       <ConfirmDialog />
       <ServiceFormModal
         isOpen={openModal}
-        onClose={() => setOpenModal(false)}
+        onClose={() => {
+          setOpenModal(false);
+          setSelectedService(null);
+          setEditMode(false);
+        }}
         onSubmit={handleSubmit}
         defaultValues={selectedService}
         title={editMode ? "Edit Service" : "Add New Service"}
@@ -137,7 +143,7 @@ export default function AdminServicesPage() {
               </p>
               <div className="flex gap-2">
                 <button
-                  onClick={() => handleEdit(service._id)}
+                  onClick={() => handleEdit(service)}
                   className="flex items-center gap-1 px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
                 >
                   <Pencil size={14} />
