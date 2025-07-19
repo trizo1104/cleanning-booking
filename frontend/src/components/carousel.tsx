@@ -38,18 +38,21 @@ function PrevArrow(props: any) {
 
 export const settings = {
   dots: true,
-  infinite: false,
-  speed: 600,
-  slidesToShow: 4,
+  infinite: true,
+  speed: 500,
+  slidesToShow: 3, // default for desktop
   slidesToScroll: 1,
-  arrows: true,
-  nextArrow: <NextArrow />,
-  prevArrow: <PrevArrow />,
   responsive: [
     {
-      breakpoint: 1024,
+      breakpoint: 1024, // tablets
       settings: {
-        slidesToShow: 3,
+        slidesToShow: 2,
+      },
+    },
+    {
+      breakpoint: 640, // mobile devices
+      settings: {
+        slidesToShow: 1,
       },
     },
   ],
