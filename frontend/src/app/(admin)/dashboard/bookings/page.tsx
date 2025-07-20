@@ -243,7 +243,7 @@ export default function AdminBookingPage() {
                 <div className="text-center py-8 text-gray-500">
                   <p>No staff members available</p>
                   <p className="text-sm text-gray-400 mt-1">
-                    Only users with 'staff' role can be assigned
+                    Only users with &apos;staff&apos; role can be assigned
                   </p>
                   <Button
                     onClick={() => dispatch(getAllEmployee())}
