@@ -55,9 +55,8 @@ export default function StaffDashboard() {
   const cancelAss = async (id: string) => {
     try {
       const resultAction = await dispatch(cancelAssignedBooking(id));
-      if (updateBookingStatus.fulfilled.match(resultAction)) {
+      if (cancelAssignedBooking.fulfilled.match(resultAction)) {
         toast.success("Booking cancelled successfully");
-        dispatch(getAssBookings());
       }
     } catch (error) {
       toast.error("Failed to cancel booking");
