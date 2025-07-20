@@ -276,6 +276,10 @@ const authsSlice = createSlice({
       })
 
       // get all employees
+      .addCase(getAllEmployee.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
       .addCase(
         getAllEmployee.fulfilled,
         (state, action: PayloadAction<User[]>) => {
@@ -284,6 +288,10 @@ const authsSlice = createSlice({
           state.isAuthenticated = true;
         }
       )
+      .addCase(getAllEmployee.rejected, (state, action: PayloadAction<any>) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
 
       // delete user
       .addCase(

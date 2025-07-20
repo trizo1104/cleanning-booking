@@ -35,25 +35,33 @@ export default function AdminBookingPage() {
   const dispatch = useDispatch<AppDispatch>();
   const [openAssignDialog, setOpenAssignDialog] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState("");
-  const { users } = useSelector((state: RootState) => state.auth);
+  const { staff, isLoading: usersLoading } = useSelector(
+    (state: RootState) => state.auth
+  );
   const { bookings, isLoading } = useSelector(
     (state: RootState) => state.booking
   );
 
+  // Filter only staff members with role 'staff'
+  const availableStaff =
+    staff?.filter((member) => member.role === "staff") || [];
+
   const handleClick = (booking: Booking) => {
     setSelectedBookingId(booking?._id);
-    dispatch(getAllEmployee());
     setOpenAssignDialog(true);
   };
 
   const handleAssignStaff = async (staffId: string, bookingId: string) => {
     dispatch(assignStaff({ bookingId: bookingId, employeeId: staffId }));
     setOpenAssignDialog(false);
+    // Reload bookings after assignment
+    dispatch(getAllBookings());
   };
 
   useEffect(() => {
     dispatch(getAllBookings());
-  }, []);
+    dispatch(getAllEmployee()); // Fetch employees on component mount
+  }, [dispatch]);
 
   return (
     <section className="p-6">
@@ -164,64 +172,88 @@ export default function AdminBookingPage() {
             </DialogTitle>
 
             <DialogContent>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>Phone</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>Action</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {users?.map((staff) => (
-                    <TableRow
-                      key={staff._id}
-                      sx={{
-                        "&:hover": {
-                          backgroundColor: "#f1f1f1",
-                        },
-                        transition: "all 0.3s",
-                      }}
-                    >
-                      <TableCell>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                          }}
-                        >
-                          <span>{staff?.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{staff?.phone}</TableCell>
-                      <TableCell>
-                        <Tooltip title="Assign this staff">
-                          <Button
-                            variant="contained"
-                            color="success"
-                            size="small"
-                            onClick={() =>
-                              handleAssignStaff(staff?._id, selectedBookingId)
-                            }
-                            sx={{
-                              textTransform: "none",
-                              borderRadius: 2,
-                              boxShadow: 2,
-                              transition: "transform 0.2s",
-                              "&:hover": {
-                                transform: "scale(1.05)",
-                              },
+              {usersLoading ? (
+                <div className="flex justify-center py-8">
+                  <LoaderCircle className="animate-spin" size={24} />
+                  <span className="ml-2">Loading staff...</span>
+                </div>
+              ) : availableStaff.length > 0 ? (
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Phone</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Action</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {availableStaff.map((staffMember) => (
+                      <TableRow
+                        key={staffMember._id}
+                        sx={{
+                          "&:hover": {
+                            backgroundColor: "#f1f1f1",
+                          },
+                          transition: "all 0.3s",
+                        }}
+                      >
+                        <TableCell>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
                             }}
                           >
-                            Assign
-                          </Button>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                            <span>{staffMember?.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{staffMember?.phone}</TableCell>
+                        <TableCell>
+                          <Tooltip title="Assign this staff">
+                            <Button
+                              variant="contained"
+                              color="success"
+                              size="small"
+                              onClick={() =>
+                                handleAssignStaff(
+                                  staffMember?._id,
+                                  selectedBookingId
+                                )
+                              }
+                              sx={{
+                                textTransform: "none",
+                                borderRadius: 2,
+                                boxShadow: 2,
+                                transition: "transform 0.2s",
+                                "&:hover": {
+                                  transform: "scale(1.05)",
+                                },
+                              }}
+                            >
+                              Assign
+                            </Button>
+                          </Tooltip>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No staff members available</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Only users with 'staff' role can be assigned
+                  </p>
+                  <Button
+                    onClick={() => dispatch(getAllEmployee())}
+                    variant="outlined"
+                    className="mt-2"
+                  >
+                    Retry
+                  </Button>
+                </div>
+              )}
             </DialogContent>
           </Dialog>
         </div>
