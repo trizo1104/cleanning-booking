@@ -96,7 +96,7 @@ const paymentCallBack = async (req, res) => {
 
     const updatedBooking = await Booking.findByIdAndUpdate(
       embed.bookingId,
-      { status: "paid" },
+      { status: "paid", assignedStaff: null },
       { new: true }
     );
 
