@@ -54,12 +54,12 @@ export default function StaffDashboard() {
 
   const cancelAss = async (id: string) => {
     try {
-      const resultAction = await dispatch(cancelAssignedBooking(id));
-      if (cancelAssignedBooking.fulfilled.match(resultAction)) {
-        toast.success("Booking cancelled successfully");
-      }
-    } catch (error) {
-      toast.error("Failed to cancel booking");
+      await dispatch(cancelAssignedBooking(id)).unwrap();
+      toast.success("Booking cancelled successfully");
+      // Reload bookings after successful cancellation
+      dispatch(getAssBookings());
+    } catch (error: any) {
+      toast.error(error || "Failed to cancel booking");
     }
   };
 
@@ -68,9 +68,6 @@ export default function StaffDashboard() {
     toast.success("Logout success");
     router.push("/login-staff");
   };
-
-  console.log("assBookings", assBookings);
-  console.log("selectedBooking", selectedBooking);
 
   return (
     <section className="min-h-screen bg-gray-50 p-8">
