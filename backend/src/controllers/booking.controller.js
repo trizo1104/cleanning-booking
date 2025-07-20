@@ -125,8 +125,6 @@ const reviewBooking = async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id);
 
-    console.log(booking.status);
-
     if (!booking) return res.status(404).json({ message: "Booking not found" });
 
     if (booking.status === "done" || booking.status === "paid") {
@@ -196,6 +194,25 @@ const deleteReview = async (req, res) => {
   }
 };
 
+const cancelAssignedBooking = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const booking = await Booking.findById(id);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    booking.assignedStaff = null;
+    booking.status = "pending";
+
+    await booking.save();
+
+    res.json({ message: "Assigned staff cancelled successfully", booking });
+  } catch (error) {
+    console.error("cancelAssignedBooking error", error);
+    res.status(500).json({ message: "Failed to cancel assigned booking" });
+  }
+};
+
 module.exports = {
   createBooking,
   getMyBookings,
@@ -207,4 +224,5 @@ module.exports = {
   getAllReviews,
   deleteReview,
   getAllPendingBookings,
+  cancelAssignedBooking,
 };

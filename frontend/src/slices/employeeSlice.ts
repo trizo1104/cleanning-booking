@@ -7,6 +7,7 @@ import {
   getBookingsByDateAPi,
   updateBookingStatusAPI,
 } from "@/app/Api/employee";
+import { CancelAssAPI } from "@/app/Api/booking";
 
 interface IEmployee {
   assBookings: IAssignBookings[];
@@ -53,6 +54,7 @@ export const getPendingBookings = createAsyncThunk(
 export const updateBookingStatus = createAsyncThunk(
   "employee/updateBookingStatus",
   async (payload: { id: string; status: string }, thunkAPI) => {
+    console.log("Updating booking status:", payload);
     try {
       await axiosInstance.post(
         updateBookingStatusAPI(payload.id),
@@ -61,6 +63,19 @@ export const updateBookingStatus = createAsyncThunk(
     } catch (err: any) {
       return thunkAPI.rejectWithValue(
         err.response?.data?.message || "Failed to fetch products"
+      );
+    }
+  }
+);
+export const cancelAssignedBooking = createAsyncThunk(
+  "employee/cancelAssignedBooking",
+  async (id: string, thunkAPI) => {
+    try {
+      const res = await axiosInstance.post(CancelAssAPI(id));
+      return { id, message: res.data.message };
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to cancel booking"
       );
     }
   }
@@ -116,7 +131,14 @@ export const acceptBooking = createAsyncThunk(
 const EmployeeSlice = createSlice({
   name: "employee",
   initialState,
-  reducers: {},
+  reducers: {
+    // Action để clear state khi cần
+    clearEmployeeState: (state) => {
+      state.assBookings = [];
+      state.pendingBookings = [];
+      state.error = null;
+    },
+  },
   extraReducers(builder) {
     builder
       // ✅ Get Assigned Bookings
@@ -224,8 +246,32 @@ const EmployeeSlice = createSlice({
           state.isLoading = false;
           state.error = action.payload;
         }
+      )
+
+      // ✅ Cancel Assigned Booking
+      .addCase(cancelAssignedBooking.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(cancelAssignedBooking.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const id = action.meta.arg;
+
+        // Remove the cancelled booking from assBookings
+        state.assBookings = state.assBookings.filter((b) => b._id !== id);
+
+        // Note: Component should dispatch getAssBookings() after this action
+        // to reload fresh data from server
+      })
+      .addCase(
+        cancelAssignedBooking.rejected,
+        (state, action: PayloadAction<any>) => {
+          state.isLoading = false;
+          state.error = action.payload;
+        }
       );
   },
 });
 
+export const { clearEmployeeState } = EmployeeSlice.actions;
 export default EmployeeSlice.reducer;

@@ -53,4 +53,10 @@ bookingRoute.post(
 
 bookingRoute.get("/service/:serviceId", bookingController.getReviewsByService);
 
+bookingRoute.post(
+  "/cancelAssigned/:id",
+  middleware.protectRoute,
+  bookingController.cancelAssignedBooking
+);
+
 module.exports = bookingRoute;

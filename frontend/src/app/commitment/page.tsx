@@ -40,17 +40,17 @@ export default function OurCommitment() {
             {
               title: "Chất lượng vượt trội",
               desc: "Chúng tôi không ngừng cải tiến quy trình làm việc để đảm bảo mọi dịch vụ đều đạt tiêu chuẩn cao nhất.",
-              icon: "/assets/quality.png",
+              icon: "/assets/quality.jpg",
             },
             {
               title: "Đội ngũ tận tâm",
               desc: "Nhân viên được đào tạo bài bản, luôn phục vụ khách hàng với tinh thần trách nhiệm và chuyên nghiệp.",
-              icon: "/assets/team.png",
+              icon: "/assets/team.jpg",
             },
             {
               title: "Thân thiện với môi trường",
               desc: "Sử dụng các sản phẩm làm sạch an toàn, thân thiện với sức khỏe và môi trường.",
-              icon: "/assets/eco.png",
+              icon: "/assets/eco.jpg",
             },
           ].map((item, index) => (
             <motion.div
@@ -59,13 +59,15 @@ export default function OurCommitment() {
               whileHover={{ scale: 1.03 }}
             >
               <div className="flex justify-center mb-4">
-                <Image
-                  src={item.icon}
-                  alt={item.title}
-                  width={64}
-                  height={64}
-                  className="object-contain"
-                />
+                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                  <Image
+                    src={item.icon}
+                    alt={item.title}
+                    width={96}
+                    height={96}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
               </div>
               <h3 className="text-xl font-semibold text-green-600 mb-2">
                 {item.title}
@@ -77,7 +79,6 @@ export default function OurCommitment() {
           ))}
         </motion.div>
 
-        {/* Banner CTA */}
         <motion.div
           variants={fadeIn}
           initial="hidden"

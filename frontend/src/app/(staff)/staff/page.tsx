@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/store/store";
 import {
   acceptBooking,
+  cancelAssignedBooking,
   getAssBookings,
   getPendingBookings,
   updateBookingStatus,
@@ -19,7 +20,7 @@ import { useRouter } from "next/navigation";
 
 export default function StaffDashboard() {
   const [bookings, setBookings] = useState<IAssignBookings[]>([]);
-  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [selectedBooking, setSelectedBooking] = useState<any>("today");
   const [note, setNote] = useState("");
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -47,7 +48,19 @@ export default function StaffDashboard() {
   const updateStatus = async (id: string, status: string) => {
     const resultAction = await dispatch(updateBookingStatus({ id, status }));
     if (updateBookingStatus.fulfilled.match(resultAction)) {
-      toast.success("Mark success");
+      toast.success("Booking marked as done");
+    }
+  };
+
+  const cancelAss = async (id: string) => {
+    try {
+      const resultAction = await dispatch(cancelAssignedBooking(id));
+      if (updateBookingStatus.fulfilled.match(resultAction)) {
+        toast.success("Booking cancelled successfully");
+        dispatch(getAssBookings());
+      }
+    } catch (error) {
+      toast.error("Failed to cancel booking");
     }
   };
 
@@ -56,6 +69,9 @@ export default function StaffDashboard() {
     toast.success("Logout success");
     router.push("/login-staff");
   };
+
+  console.log("assBookings", assBookings);
+  console.log("selectedBooking", selectedBooking);
 
   return (
     <section className="min-h-screen bg-gray-50 p-8">
@@ -75,7 +91,7 @@ export default function StaffDashboard() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => {
-              setSelectedBooking(null);
+              setSelectedBooking("today");
               dishpatch(getAssBookings());
             }}
             className="flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-green-300 to-green-500 text-white shadow-md hover:shadow-lg transition"
@@ -108,7 +124,7 @@ export default function StaffDashboard() {
       </div>
 
       {/* Today Bookings */}
-      {selectedBooking === null &&
+      {selectedBooking === "today" &&
         (assBookings?.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {assBookings
@@ -133,6 +149,13 @@ export default function StaffDashboard() {
                       <strong className="text-gray-800">Address:</strong>{" "}
                       {booking.address}
                     </p>
+                    {!booking.note && (
+                      <p>
+                        <strong className="text-red-800">
+                          <br />
+                        </strong>{" "}
+                      </p>
+                    )}
                     {booking.note && (
                       <p>
                         <strong className="text-red-800">Note:</strong>{" "}
@@ -140,7 +163,15 @@ export default function StaffDashboard() {
                       </p>
                     )}
                   </div>
-                  <div className="flex float-end mt-5">
+                  <div className="flex float-end mt-5 gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      onClick={() => cancelAss(booking._id)}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-sm shadow-md transition"
+                    >
+                      Cancel Assign
+                    </motion.button>
+
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       onClick={() => updateStatus(booking._id, "done")}
