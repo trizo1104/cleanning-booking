@@ -31,7 +31,7 @@ bookingRoute.get(
 bookingRoute.get(
   "/allReviews",
   middleware.protectRoute,
-  middleware.adminOnly,
+  // middleware.adminOnly,
   bookingController.getAllReviews
 );
 

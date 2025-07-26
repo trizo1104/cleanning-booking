@@ -130,15 +130,6 @@ function LoginStaff() {
               )}
             </button>
           </form>
-
-          <div className="text-center">
-            <p className="text-base-content/60">
-              Don&apos;t have an account? &nbsp;
-              <Link href="/signup" className="link link-primary">
-                Create account
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
 

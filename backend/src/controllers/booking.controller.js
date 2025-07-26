@@ -177,8 +177,7 @@ const getAllReviews = async (req, res) => {
   try {
     const reviews = await Review.find()
       .populate("user", "name")
-      .populate("service", "name")
-      .populate("booking", "selectedOptionType");
+      .populate("service", "name");
     res.json(reviews);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch reviews" });

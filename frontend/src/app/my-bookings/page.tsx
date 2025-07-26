@@ -7,21 +7,33 @@ import { formatVND } from "@/lib/format";
 import Link from "next/link";
 import axiosInstance from "@/lib/axios";
 import { toast } from "react-toastify";
-import { cancelBooking, getMyBookings } from "@/slices/bookingSlice";
+import {
+  cancelBooking,
+  getAllReviewForAdmin,
+  getMyBookings,
+} from "@/slices/bookingSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import { useConfirmDialog } from "@/components/useConfirmDialog";
 
 export default function MyBookingsPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { getBookings, isLoading } = useSelector(
+  const { getBookings, isLoading, review } = useSelector(
     (state: RootState) => state.booking
   );
   const { confirm, ConfirmDialog } = useConfirmDialog();
 
+  console.log(review);
+
   useEffect(() => {
     dispatch(getMyBookings());
+    dispatch(getAllReviewForAdmin());
   }, []);
+
+  // Kiểm tra xem booking đã có review chưa
+  const hasReview = (bookingId: string) => {
+    return review?.some((reviewItem: any) => reviewItem.booking === bookingId);
+  };
 
   const handlePayment = async (booking: IGetBooking) => {
     try {
@@ -162,16 +174,20 @@ export default function MyBookingsPage() {
 
                 <div className="text-right">
                   <div className="flex gap-3 float-end">
-                    {booking.status === "done" ||
-                      (booking.status === "paid" && (
-                        <Link
-                          href={`/my-bookings/${booking._id}/review`}
-                          className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
-                        >
-                          <Star size={18} />
-                          Đánh giá dịch vụ
-                        </Link>
-                      ))}{" "}
+                    {!hasReview(booking._id) &&
+                    (booking.status === "done" || booking.status === "paid") ? (
+                      <Link
+                        href={`/my-bookings/${booking._id}/review`}
+                        className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition"
+                      >
+                        <Star size={18} />
+                        Đánh giá dịch vụ
+                      </Link>
+                    ) : (
+                      <p className="mt-4 text-md text-gray-500">
+                        Bạn đã đánh giá dịch vụ này
+                      </p>
+                    )}
                     {booking.status === "done" && (
                       <button
                         onClick={() => handlePayment(booking)}
