@@ -14,6 +14,17 @@ const createBooking = async (req, res) => {
       selectedPrice,
     } = req.body;
 
+    if (
+      !service ||
+      !date ||
+      !time ||
+      !address ||
+      !selectedOptionType ||
+      !selectedPrice
+    ) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
     const booking = await Booking.create({
       user: req.user._id,
       service,

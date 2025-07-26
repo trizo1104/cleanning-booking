@@ -29,8 +29,7 @@ const signUp = async (req, res) => {
     });
 
     if (newUser) {
-      // generateToken(newUser._id, newUser.role, res);
-      newUser.save();
+      await newUser.save();
 
       return res.status(201).json({
         _id: newUser._id,

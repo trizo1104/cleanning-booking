@@ -30,6 +30,16 @@ const updateBookingStatus = async (req, res) => {
 
   try {
     const booking = await Booking.findById(id);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+    if (
+      !booking.assignedStaff ||
+      booking.assignedStaff.toString() !== req.user.id
+    ) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
     booking.status = "done";
     // if (!booking || booking.assignedStaff.toString() !== req.user.id) {
     //   return res.status(403).json({ message: "Not authorized" });
