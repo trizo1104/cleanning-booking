@@ -18,7 +18,8 @@ const app = express();
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["https://clean-hours.com"],
+    // origin: ["https://clean-hours.com", "http://localhost:3000"],
+    origin: ['http://localhost:3000', 'https://6c756bvd-3000.asse.devtunnels.ms', 'https://clean-hours.com'],
     credentials: true,
   })
 );
