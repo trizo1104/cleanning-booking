@@ -21,7 +21,7 @@ const CheckingPaymentInner = () => {
       if (!transactionId) return router.push("/payment-failure");
       try {
         const res = await axios.get(
-          `https://cleanning-booking.onrender.com/api/payment-zalo/check-payment-status/${transactionId}`
+          `https://api.clean-hours.com/api/payment-zalo/check-payment-status/${transactionId}`
           // `http://localhost:8080/api/payment-zalo/check-payment-status/${transactionId}`
         );
 

@@ -38,7 +38,7 @@ export default function MyBookingsPage() {
   const handlePayment = async (booking: IGetBooking) => {
     try {
       const res = await axiosInstance.post(
-        "https://cleanning-booking.onrender.com/api/payment-zalo/pay-booking",
+        "https://api.clean-hours.com/api/payment-zalo/pay-booking",
         // "http://localhost:8080/api/payment-zalo/pay-booking",
         {
           amount: booking?.selectedPrice,

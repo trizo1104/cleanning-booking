@@ -45,7 +45,7 @@ const payment = async (req, res) => {
       amount,
       description: "ZaloPay Booking",
       bank_code: "",
-      callback_url: `https://cleanning-booking.onrender.com/api/payment-zalo/callback`,
+      callback_url: `https://api.clean-hours.com/api/payment-zalo/callback`,
       // callback_url: `${process.env.NGROK_URL}/api/payment-zalo/callback`,
     };
 
