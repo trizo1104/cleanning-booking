@@ -5,6 +5,7 @@ const Employee = require("../models/employee");
 const protectRoute = async (req, res, next) => {
   try {
     const token = req.cookies.jwt;
+    console.log("Token received:", token);
     if (!token)
       return res.status(401).json({ mess: "Unauthorized - No token provided" });
 
@@ -29,7 +30,7 @@ const protectRoute = async (req, res, next) => {
     }
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" }); 
+      return res.status(404).json({ message: "User not found" });
     }
     req.user = user;
 
